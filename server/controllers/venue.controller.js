@@ -13,7 +13,8 @@ exports.getAllVenues = async (req, res) => {
 // [GET] /api/venues/:id
 exports.getVenueById = async (req, res) => {
     try {
-        const venue = await Venue.findById(req.params.id);
+        const venue = await Venue.findById(req.params.id)
+            .populate('owner', 'name surname');
         if (!venue) {
             return res.status(404).json({ error: 'Venue not found' });
         }
