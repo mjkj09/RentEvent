@@ -1,110 +1,73 @@
-const User = require('../models/user.model');
+const userService = require('../services/user.service');
 
-// [GET] /api/users
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
     try {
-        const users = await User.find();
+        const users = await userService.listUsers();
         res.status(200).json(users);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-// [GET] /api/users/:id
-exports.getUserById = async (req, res) => {
+exports.getUserById = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.id).populate('favorites');
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        const user = await userService.getUserById(req.params.id);
         res.status(200).json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-// [POST] /api/users
-exports.createUser = async (req, res) => {
+exports.createUser = async (req, res, next) => {
     try {
-        const newUser = await User.create(req.body);
+        const newUser = await userService.createUser(req.body);
         res.status(201).json(newUser);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        next(err);
     }
 };
 
-// [PUT] /api/users/:id
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
     try {
-        const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-        });
-        if (!updatedUser) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(200).json(updatedUser);
+        const updated = await userService.updateUser(req.params.id, req.body);
+        res.status(200).json(updated);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        next(err);
     }
 };
 
-// [DELETE] /api/users/:id
-exports.deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res, next) => {
     try {
-        const deletedUser = await User.findByIdAndDelete(req.params.id);
-        if (!deletedUser) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        await userService.deleteUser(req.params.id);
         res.status(204).send();
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-// [GET] /api/users/:id/favorites
-exports.getFavorites = async (req, res) => {
+exports.getFavorites = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.id).populate('favorites');
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(200).json(user.favorites);
+        const favs = await userService.getFavorites(req.params.id);
+        res.status(200).json(favs);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-// [POST] /api/users/:id/favorites
-exports.addFavorite = async (req, res) => {
+exports.addFavorite = async (req, res, next) => {
     try {
-        const { venueId } = req.body;
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        if (!user.favorites.includes(venueId)) {
-            user.favorites.push(venueId);
-            await user.save();
-        }
+        const user = await userService.addFavorite(req.params.id, req.body.venueId);
         res.status(200).json(user);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        next(err);
     }
 };
 
-// [DELETE] /api/users/:id/favorites/:venueId
-exports.removeFavorite = async (req, res) => {
+exports.removeFavorite = async (req, res, next) => {
     try {
-        const { id, venueId } = req.params;
-        const user = await User.findById(id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        user.favorites = user.favorites.filter((fav) => fav.toString() !== venueId);
-        await user.save();
+        const user = await userService.removeFavorite(req.params.id, req.params.venueId);
         res.status(200).json(user);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        next(err);
     }
 };
