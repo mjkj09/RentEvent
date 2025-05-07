@@ -1,11 +1,10 @@
 const router = require('express').Router();
-const venueController = require('../controllers/venue.controller');
+const ctrl = require('../controllers/venue.controller');
 
-// CRUD
-router.post('/', venueController.createVenue);
-router.get('/', venueController.getAllVenues);
-router.get('/:id', venueController.getVenueById);
-router.put('/:id', venueController.updateVenue);
-router.delete('/:id', venueController.deleteVenue);
+router.get('/', ctrl.getAllVenues);
+router.get('/:id', ctrl.getVenueById);
+router.post('/', ctrl.createVenue);
+router.put('/:id', ctrl.updateVenue);
+router.delete('/:id', ctrl.deleteVenue);
 
 module.exports = router;

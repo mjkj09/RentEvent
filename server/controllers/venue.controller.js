@@ -1,61 +1,46 @@
-const Venue = require('../models/venue.model');
+const venueService = require('../services/venue.service');
 
-// [GET] /api/venues
-exports.getAllVenues = async (req, res) => {
+exports.getAllVenues = async (req, res, next) => {
     try {
-        const venues = await Venue.find();
+        const venues = await venueService.listVenues(req.query);
         res.status(200).json(venues);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-// [GET] /api/venues/:id
-exports.getVenueById = async (req, res) => {
+exports.getVenueById = async (req, res, next) => {
     try {
-        const venue = await Venue.findById(req.params.id)
-            .populate('owner', 'name surname');
-        if (!venue) {
-            return res.status(404).json({ error: 'Venue not found' });
-        }
+        const venue = await venueService.getVenueById(req.params.id);
         res.status(200).json(venue);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-// [POST] /api/venues
-exports.createVenue = async (req, res) => {
+exports.createVenue = async (req, res, next) => {
     try {
-        const venue = await Venue.create(req.body);
-        res.status(201).json(venue);
+        const created = await venueService.createVenue(req.body);
+        res.status(201).json(created);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        next(err);
     }
 };
 
-// [PUT] /api/venues/:id
-exports.updateVenue = async (req, res) => {
+exports.updateVenue = async (req, res, next) => {
     try {
-        const venue = await Venue.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!venue) {
-            return res.status(404).json({ error: 'Venue not found' });
-        }
-        res.status(200).json(venue);
+        const updated = await venueService.updateVenue(req.params.id, req.body);
+        res.status(200).json(updated);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        next(err);
     }
 };
 
-// [DELETE] /api/venues/:id
-exports.deleteVenue = async (req, res) => {
+exports.deleteVenue = async (req, res, next) => {
     try {
-        const venue = await Venue.findByIdAndDelete(req.params.id);
-        if (!venue) {
-            return res.status(404).json({ error: 'Venue not found' });
-        }
+        await venueService.deleteVenue(req.params.id);
         res.status(204).send();
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
