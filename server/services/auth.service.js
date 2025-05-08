@@ -1,15 +1,15 @@
 const bcrypt = require('bcryptjs');
 const userRepo = require('../repositories/user.repository');
+const AppError = require('../utils/AppError');
 
-exports.register = async ({ name, surname, email, password }) => {
+exports.register = async ({name, surname, email, password}) => {
     const exists = await userRepo.findByEmail(email);
     if (exists) {
-        throw new Error('Email already in use');
+        throw new AppError('Email already in use', 409);
     }
 
     const hash = await bcrypt.hash(password, 12);
-
-    const u = await userRepo.insert({ name, surname, email, password: hash });
+    const u = await userRepo.insert({name, surname, email, password: hash});
 
     return {
         id: u._id,
@@ -20,15 +20,15 @@ exports.register = async ({ name, surname, email, password }) => {
     };
 };
 
-exports.login = async ({ email, password }) => {
+exports.login = async ({email, password}) => {
     const u = await userRepo.findByEmail(email);
     if (!u) {
-        throw new Error('Invalid credentials');
+        throw new AppError('Invalid credentials', 401);
     }
 
     const valid = await bcrypt.compare(password, u.password);
     if (!valid) {
-        throw new Error('Invalid credentials');
+        throw new AppError('Invalid credentials', 401);
     }
 
     return {
