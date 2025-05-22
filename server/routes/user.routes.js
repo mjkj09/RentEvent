@@ -1,14 +1,17 @@
 const router = require('express').Router();
 const ctrl = require('../controllers/user.controller');
+const { verifyToken, hasRole} = require('../middleware/auth.middleware');
 
-router.get('/', ctrl.getAllUsers);
-router.get('/:id', ctrl.getUserById);
-router.post('/', ctrl.createUser);
-router.put('/:id', ctrl.updateUser);
-router.delete('/:id', ctrl.deleteUser);
+//TODO: Add additional logic that user can only modify his own profile
+router.get('/', verifyToken, hasRole(['admin']), ctrl.getAllUsers);
+router.get('/:id', verifyToken, ctrl.getUserById);
+router.post('/', verifyToken, hasRole(['admin']), ctrl.createUser);
+router.put('/:id', verifyToken, ctrl.updateUser);
+router.delete('/:id', verifyToken, hasRole(['admin']), ctrl.deleteUser);
 
-router.get('/:id/favorites', ctrl.getFavorites);
-router.post('/:id/favorites', ctrl.addFavorite);
-router.delete('/:id/favorites/:venueId', ctrl.removeFavorite);
+//TODO: Add additional logic to check if user is the owner of favorites
+router.get('/:id/favorites', verifyToken, ctrl.getFavorites);
+router.post('/:id/favorites', verifyToken, ctrl.addFavorite);
+router.delete('/:id/favorites/:venueId', verifyToken, ctrl.removeFavorite);
 
 module.exports = router;
