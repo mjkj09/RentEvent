@@ -102,8 +102,6 @@ exports.logout = async (refreshToken, res) => {
     if (refreshToken) {
         await tokenRepo.remove(refreshToken);
     }
-
-    return {message: 'Logged out successfully'};
 };
 
 exports.refreshToken = async (refreshToken, res) => {

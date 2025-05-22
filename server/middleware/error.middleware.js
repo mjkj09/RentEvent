@@ -8,7 +8,8 @@ module.exports = (err, req, res, _next) => {
     console.error(err.stack);
 
     res.status(statusCode).json({
-        status: statusCode < 500 ? 'fail' : 'error',
-        message
+        error: {
+            message
+        }
     });
 };
