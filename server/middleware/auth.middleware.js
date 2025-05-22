@@ -32,15 +32,3 @@ exports.hasRole = (roles) => {
         next();
     };
 };
-
-exports.isOwnerOrAdmin = (req, res, next) => {
-    if (!req.user) {
-        return next(new AppError('Access denied. Not authenticated.', 401));
-    }
-
-    if (req.user.role === 'admin' || req.params.id === req.user.id) {
-        return next();
-    }
-
-    return next(new AppError('Access denied. Not authorized.', 403));
-};
