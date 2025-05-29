@@ -3,7 +3,7 @@ import {Card, CardContent, Typography} from '@mui/material';
 
 export default function FeatureCard({icon, title, description}) {
     return (
-        <Card elevation={8} sx={{height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 6}}>
+        <Card elevation={8} sx={{height: '100%', display: 'flex', flexDirection: 'column'}}>
             <CardContent sx={{
                 flexGrow: 1,
                 display: 'flex',
