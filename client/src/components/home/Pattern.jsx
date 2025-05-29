@@ -1,11 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
+import backgroundMp4 from '/background/homePageBackground.mp4';
+
+//TODO: Change from styled-components to sx
 
 const Pattern = () => (
     <StyledWrapper>
         <video
             className="background"
-            src='../../../public/background/homePageBackground.mp4'
+            src={backgroundMp4}
             autoPlay
             muted
             loop

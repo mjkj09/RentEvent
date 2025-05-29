@@ -18,6 +18,7 @@ import {
     Phone,
     LocationOn
 } from '@mui/icons-material';
+import logoSvg from '/logo/logo.svg'
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -63,7 +64,7 @@ export default function Footer() {
                                 gap: 2
                             }}>
                                 <img
-                                    src="../../../public/logo/logo.svg"
+                                    src={logoSvg}
                                     alt="RentEvent Logo"
                                     height="32"
                                     style={{filter: 'brightness(0) invert(1)'}}
