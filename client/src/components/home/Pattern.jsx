@@ -1,30 +1,28 @@
 import React from 'react';
-import styled from 'styled-components';
+import { Box } from '@mui/material';
+import backgroundMp4 from '/background/homePageBackground.mp4';
 
 const Pattern = () => (
-    <StyledWrapper>
-        <video
-            className="background"
-            src='../../../public/background/homePageBackground.mp4'
+    <Box>
+        <Box
+            component="video"
+            src={backgroundMp4}
             autoPlay
             muted
             loop
             playsInline
+            sx={{
+                position: 'fixed',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                opacity: 0.4,
+                zIndex: -10,
+                background: '#FFFFFF'
+            }}
         />
-    </StyledWrapper>
+    </Box>
 );
-
-const StyledWrapper = styled.div`
-    .background {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        opacity: 0.4;
-        z-index: -10;
-        background: #FFFFFF;
-    }
-`;
 
 export default Pattern;
