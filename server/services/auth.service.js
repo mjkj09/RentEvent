@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const validator = require('validator');
 const userRepo = require('../repositories/user.repository');
 const tokenRepo = require('../repositories/token.repository');
 const AppError = require('../utils/AppError');
@@ -47,14 +48,38 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
     });
 };
 
-exports.register = async ({name, surname, email, password}, res) => {
+const validatePassword = (password) => {
+    if (!password) {
+        throw new AppError('Password is required', 400);
+    }
+
+    if (password.length < 8) {
+        throw new AppError('Password must be at least 8 characters long', 400);
+    }
+
+    if (!validator.isStrongPassword(password, { 
+        minLength: 8, 
+        minLowercase: 1, 
+        minUppercase: 1, 
+        minNumbers: 1,
+        minSymbols: 0
+    })) {
+        throw new AppError('Password must contain at least one uppercase letter, one lowercase letter, and one number', 400);
+    }
+
+    return true;
+};
+
+exports.register = async ({name, surname, email, password, role}, res) => {
     const exists = await userRepo.findByEmail(email);
     if (exists) {
         throw new AppError('Email already in use', 409);
     }
 
+    validatePassword(password);
+
     const hash = await bcrypt.hash(password, 12);
-    const u = await userRepo.insert({name, surname, email, password: hash});
+    const u = await userRepo.insert({name, surname, email, password: hash, role});
 
     const accessToken = generateAccessToken(u);
     const refreshToken = await generateRefreshToken(u);
