@@ -49,6 +49,13 @@ const components = {
             },
         },
     },
+    MuiAlert: {
+        styleOverrides: {
+            root: {
+                borderRadius: 8,
+            },
+        },
+    },
 };
 
 export default components;
