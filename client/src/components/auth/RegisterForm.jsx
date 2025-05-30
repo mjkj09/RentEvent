@@ -10,7 +10,10 @@ import {
     Select,
     MenuItem,
     Grid,
-    InputAdornment
+    InputAdornment,
+    Alert,
+    CircularProgress,
+    LinearProgress
 } from '@mui/material';
 import {
     Visibility,
@@ -21,6 +24,9 @@ import {
     Business
 } from '@mui/icons-material';
 import FormField from '../common/FormField';
+import { useAuth } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import zxcvbn from 'zxcvbn';
 
 export default function RegisterForm({toggleMode}) {
     const [showPassword, setShowPassword] = useState(false);
@@ -31,19 +37,150 @@ export default function RegisterForm({toggleMode}) {
         password: '',
         accountType: 'renter'
     });
+    const [formError, setFormError] = useState('');
+    const [passwordStrength, setPasswordStrength] = useState({
+        isStrong: false,
+        message: ''
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { register } = useAuth();
+    const navigate = useNavigate();
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
 
-    const handleChange = (field) => (event) => {
-        setFormData({
-            ...formData,
-            [field]: event.target.value
-        });
+    const validatePassword = (password) => {
+        if (!password) {
+            return {
+                score: 0,
+                isStrong: false,
+                message: 'Password is required',
+                color: 'error'
+            };
+        }
+
+        const minLength = password.length >= 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasDigit = /\d/.test(password);
+
+        const result = zxcvbn(password);
+        const score = result.score;
+
+
+        if (!minLength) {
+            return {
+                score: 0,
+                isStrong: false,
+                message: 'Password must be at least 8 characters long',
+                color: 'error'
+            };
+        }
+
+        if (!hasUpperCase) {
+            return {
+                score: 0,
+                isStrong: false,
+                message: 'Password must contain at least one uppercase letter',
+                color: 'error'
+            };
+        }
+
+        if (!hasLowerCase) {
+            return {
+                score: 0,
+                isStrong: false,
+                message: 'Password must contain at least one lowercase letter',
+                color: 'error'
+            };
+        }
+
+        if (!hasDigit) {
+            return {
+                score: 0,
+                isStrong: false,
+                message: 'Password must contain at least one number',
+                color: 'error'
+            };
+        }
+
+        let message;
+        let color;
+        let isStrong;
+
+        switch (score) {
+            case 0:
+                message = 'Password is too weak - easily guessable';
+                color = 'error';
+                isStrong = false;
+                break;
+            case 1:
+                message = 'Password meets requirements but could be stronger. You can register now.';
+                color = 'warning';
+                isStrong = true;
+                break;
+            case 2:
+                message = 'Good password strength. Ready to register!';
+                color = 'success';
+                isStrong = true;
+                break;
+            case 3:
+                message = 'Strong password. Ready to register!';
+                color = 'success';
+                isStrong = true;
+                break;
+            case 4:
+                message = 'Very strong password. Ready to register!';
+                color = 'success';
+                isStrong = true;
+                break;
+            default:
+                message = 'Password strength unknown';
+                color = 'error';
+                isStrong = false;
+        }
+
+        return {
+            score,
+            isStrong,
+            message,
+            color
+        };
     };
 
-    const handleSubmit = (event) => {
+    const handleChange = (field) => (event) => {
+        const value = event.target.value;
+        setFormData({
+            ...formData,
+            [field]: value
+        });
+
+        if (field === 'password') {
+            setPasswordStrength(validatePassword(value));
+        }
+
+        if (formError) setFormError('');
+    };
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log('Registration attempted with:', formData);
+
+        const passwordValidation = validatePassword(formData.password);
+        if (!passwordValidation.isStrong) {
+            setFormError(passwordValidation.message);
+            return;
+        }
+
+        setIsSubmitting(true);
+        setFormError('');
+
+        try {
+            await register(formData);
+            navigate('/');
+        } catch (error) {
+            setFormError(error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -64,6 +201,10 @@ export default function RegisterForm({toggleMode}) {
                         onChange={handleChange('firstName')}
                         startIcon={<Person color="action"/>}
                         sx={{mb: 0}}
+                        inputProps={{
+                            autoComplete: "given-name"
+                        }}
+                        required
                     />
                 </Grid>
                 <Grid item size={{xs: 12, lg: 6}}>
@@ -74,6 +215,10 @@ export default function RegisterForm({toggleMode}) {
                         onChange={handleChange('lastName')}
                         startIcon={<Person color="action"/>}
                         sx={{mb: 0}}
+                        inputProps={{
+                            autoComplete: "family-name"
+                        }}
+                        required
                     />
                 </Grid>
             </Grid>
@@ -85,6 +230,7 @@ export default function RegisterForm({toggleMode}) {
                 value={formData.email}
                 onChange={handleChange('email')}
                 startIcon={<Email color="action"/>}
+                required
             />
 
             <Box sx={{mb: 3}}>
@@ -109,7 +255,7 @@ export default function RegisterForm({toggleMode}) {
             </Box>
 
             <FormField
-                sx={{mb: 4}}
+                sx={{mb: 1}}
                 label="Password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Create a password"
@@ -121,7 +267,36 @@ export default function RegisterForm({toggleMode}) {
                         {showPassword ? <VisibilityOff/> : <Visibility/>}
                     </IconButton>
                 }
+                inputProps={{
+                    autoComplete: "new-password"
+                }}
+                required
             />
+
+            {formData.password && (
+                <Box>
+                    <LinearProgress
+                        variant="determinate"
+                        value={(passwordStrength.score || 0) * 25}
+                        color={passwordStrength.color || "error"}
+                        sx={{ height: 8, borderRadius: 5, mb: 1 }}
+                    />
+                    <Typography
+                        variant="caption"
+                        color={passwordStrength.color || "error"}
+                        sx={{ display: 'block', fontWeight: 500 }}
+                    >
+                        {passwordStrength.message}
+                    </Typography>
+                </Box>
+            )}
+
+
+            {formError && (
+                <Alert severity="error" sx={{ mb: 2, mt: 3}}>
+                    {formError}
+                </Alert>
+            )}
 
             <Button
                 type="submit"
@@ -129,9 +304,11 @@ export default function RegisterForm({toggleMode}) {
                 variant="contained"
                 color="secondary"
                 size="large"
-                sx={{mb: 3}}
+                sx={{mb: 3, mt: 3}}
+                disabled={isSubmitting}
+                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
             >
-                Create Account
+                {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </Button>
 
             <Divider sx={{mb: 3}}>
