@@ -5,7 +5,9 @@ import {
     Button,
     Link,
     IconButton,
-    Divider
+    Divider,
+    Alert,
+    CircularProgress
 } from '@mui/material';
 import {
     Visibility,
@@ -14,6 +16,8 @@ import {
     Lock
 } from '@mui/icons-material';
 import FormField from '../common/FormField';
+import {useAuth} from '../../hooks/useAuth';
+import {useNavigate} from 'react-router-dom';
 
 export default function LoginForm({toggleMode}) {
     const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +25,10 @@ export default function LoginForm({toggleMode}) {
         email: '',
         password: ''
     });
+    const [formError, setFormError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const {login} = useAuth();
+    const navigate = useNavigate();
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
 
@@ -29,11 +37,22 @@ export default function LoginForm({toggleMode}) {
             ...formData,
             [field]: event.target.value
         });
+        if (formError) setFormError('');
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log('Login attempted with:', formData);
+        setIsSubmitting(true);
+        setFormError('');
+
+        try {
+            await login(formData);
+            navigate('/');
+        } catch (error) {
+            setFormError(error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -52,6 +71,10 @@ export default function LoginForm({toggleMode}) {
                 value={formData.email}
                 onChange={handleChange('email')}
                 startIcon={<Email color="action"/>}
+                inputProps={{
+                    autoComplete: "email"
+                }}
+                required
             />
 
             <FormField
@@ -66,13 +89,23 @@ export default function LoginForm({toggleMode}) {
                         {showPassword ? <VisibilityOff/> : <Visibility/>}
                     </IconButton>
                 }
+                inputProps={{
+                    autoComplete: "current-password"
+                }}
+                required
             />
 
-            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4}}>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1}}>
                 <Link href="#" underline="hover" sx={{color: 'text.secondary', fontSize: '0.875rem'}}>
                     Forgot Password?
                 </Link>
             </Box>
+
+            {formError && (
+                <Alert severity="error" sx={{mb: 2, mt: 2}}>
+                    {formError}
+                </Alert>
+            )}
 
             <Button
                 type="submit"
@@ -80,9 +113,11 @@ export default function LoginForm({toggleMode}) {
                 variant="contained"
                 color="secondary"
                 size="large"
-                sx={{mb: 4}}
+                sx={{mb: 4, mt: 3}}
+                disabled={isSubmitting}
+                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit"/> : null}
             >
-                Sign In
+                {isSubmitting ? 'Signing In...' : 'Sign In'}
             </Button>
 
             <Divider sx={{mb: 4}}>
