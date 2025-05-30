@@ -14,12 +14,19 @@ export default function AuthSidebar() {
                 p: { xs: 4, md: 6 },
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'center',
+                justifyContent: { xs: 'center', md: 'flex-start' },
                 position: 'relative',
-                overflow: 'hidden'
+                height: { md: 'auto' }
             }}
         >
-            <Box sx={{ position: 'relative', zIndex: 2, textAlign: { xs: 'center', md: 'left' } }}>
+            <Box 
+                sx={{
+                    position: 'sticky',
+                    top: '15vh',
+                    zIndex: 2,
+                    textAlign: { xs: 'center', md: 'left' }
+                }}
+            >
                 <Box sx={{ mb: { xs: 2, md: 4 } }}>
                     <img
                         src={logoSvg}
