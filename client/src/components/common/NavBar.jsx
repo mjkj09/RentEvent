@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     AppBar,
     Toolbar,
-    Typography,
     Button,
     IconButton,
     Box,
@@ -76,9 +75,6 @@ export default function NavBar() {
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
             <Box sx={{ py: 2, px: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={logoSvg} alt="RentEvent" height="32" />
-                <Typography variant="h6" sx={{ ml: 1, fontWeight: 600 }}>
-                    RentEvent
-                </Typography>
             </Box>
             <Divider />
             <List>
@@ -125,11 +121,6 @@ export default function NavBar() {
                         height="40"
                         style={{ filter: 'brightness(0) invert(1)' }}
                     />
-                    {!isMobile && (
-                        <Typography variant="h6" sx={{ ml: 2, fontWeight: 600 }}>
-                            RentEvent
-                        </Typography>
-                    )}
                 </Box>
 
                 {/* Desktop Navigation */}

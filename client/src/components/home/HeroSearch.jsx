@@ -90,7 +90,6 @@ export default function HeroSearch() {
                 </Box>
 
                 <Box
-                    elevation={48}
                     sx={{
                         maxWidth: '800px',
                         mx: 'auto',
