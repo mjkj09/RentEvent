@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import backgroundMp4 from '/background/homePageBackground.mp4';
+import backgroundMp4 from '/background/landingPageBackground.mp4';
 
 const Pattern = () => (
     <Box>
