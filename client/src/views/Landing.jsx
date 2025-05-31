@@ -1,11 +1,11 @@
 import React from 'react';
 import {Container} from '@mui/material';
-import Pattern from '../components/home/Pattern';
-import HeroBanner from '../components/home/HeroBanner';
-import FeaturesGrid from '../components/home/FeaturesGrid';
+import Pattern from '../components/landing/Pattern.jsx';
+import HeroBanner from '../components/landing/HeroBanner.jsx';
+import FeaturesGrid from '../components/landing/FeaturesGrid.jsx';
 import Footer from '../components/common/Footer';
 
-export default function Home() {
+export default function Landing() {
     return (
         <>
             <Pattern/>
