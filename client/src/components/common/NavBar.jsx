@@ -119,13 +119,18 @@ export default function NavBar() {
                         src={logoSvg}
                         alt="RentEvent"
                         height="40"
-                        style={{ filter: 'brightness(0) invert(1)' }}
                     />
                 </Box>
 
                 {/* Desktop Navigation */}
                 {!isMobile && (
-                    <Box sx={{ display: 'flex', gap: 1, mx: 'auto' }}>
+                    <Box sx={{ 
+                        display: 'flex', 
+                        gap: 1, 
+                        position: 'absolute',
+                        left: '50%',
+                        transform: 'translateX(-50%)'
+                    }}>
                         {navigationItems.map((item) => (
                             <Button
                                 key={item.path}

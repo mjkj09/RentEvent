@@ -28,6 +28,13 @@ const components = {
             },
         },
     },
+    MuiAppBar: {
+        styleOverrides: {
+            root: {
+                borderRadius: 0,
+            },
+        },
+    },
     MuiCard: {
         styleOverrides: {
             root: {
