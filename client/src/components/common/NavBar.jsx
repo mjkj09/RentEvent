@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
     AppBar,
     Toolbar,
@@ -27,18 +27,18 @@ import {
     Person,
     Logout
 } from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import {useNavigate, useLocation} from 'react-router-dom';
+import {useAuth} from '../../hooks/useAuth';
 import logoSvg from '/logo/logo.svg';
 
 export default function NavBar() {
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, logout } = useAuth();
+    const {user, logout} = useAuth();
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -62,21 +62,21 @@ export default function NavBar() {
     };
 
     const navigationItems = [
-        { label: 'Home', path: '/home', icon: <Home /> },
-        { label: 'Search', path: '/search', icon: <Search /> },
-        { label: 'Requests', path: '/requests', icon: <Assignment /> },
-        { label: 'Favourites', path: '/favourites', icon: <Favorite /> },
-        ...(user?.role === 'owner' ? [{ label: 'My Venues', path: '/my-venues', icon: <Business /> }] : [])
+        {label: 'Home', path: '/home', icon: <Home/>},
+        {label: 'Search', path: '/search', icon: <Search/>},
+        {label: 'Requests', path: '/requests', icon: <Assignment/>},
+        {label: 'Favourites', path: '/favourites', icon: <Favorite/>},
+        ...(user?.role === 'owner' ? [{label: 'My Venues', path: '/my-venues', icon: <Business/>}] : [])
     ];
 
     const isActive = (path) => location.pathname === path;
 
     const drawer = (
-        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-            <Box sx={{ py: 2, px: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={logoSvg} alt="RentEvent" height="32" />
+        <Box onClick={handleDrawerToggle} sx={{textAlign: 'center'}}>
+            <Box sx={{py: 2, px: 3, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                <img src={logoSvg} alt="RentEvent" height="32"/>
             </Box>
-            <Divider />
+            <Divider/>
             <List>
                 {navigationItems.map((item) => (
                     <ListItem key={item.path} disablePadding>
@@ -86,14 +86,15 @@ export default function NavBar() {
                             sx={{
                                 '&.Mui-selected': {
                                     backgroundColor: 'rgba(255, 224, 71, 0.1)',
-                                    borderLeft: '4px solid',
+                                    borderRight: '4px solid',
                                     borderColor: 'secondary.main',
+
                                 }
                             }}
                         >
-                            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                                {React.cloneElement(item.icon, { sx: { mr: 2 } })}
-                                <ListItemText primary={item.label} />
+                            <Box sx={{display: 'flex', alignItems: 'center', width: '100%'}}>
+                                {React.cloneElement(item.icon, {sx: {mr: 2}})}
+                                <ListItemText primary={item.label}/>
                             </Box>
                         </ListItemButton>
                     </ListItem>
@@ -104,7 +105,7 @@ export default function NavBar() {
 
     return (
         <AppBar position="sticky" elevation={2}>
-            <Toolbar sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+            <Toolbar sx={{px: {xs: 2, sm: 3, md: 4}}}>
                 {/* Logo */}
                 <Box
                     sx={{
@@ -124,9 +125,9 @@ export default function NavBar() {
 
                 {/* Desktop Navigation */}
                 {!isMobile && (
-                    <Box sx={{ 
-                        display: 'flex', 
-                        gap: 1, 
+                    <Box sx={{
+                        display: 'flex',
+                        gap: 1,
                         position: 'absolute',
                         left: '50%',
                         transform: 'translateX(-50%)'
@@ -163,7 +164,7 @@ export default function NavBar() {
                 )}
 
                 {/* Profile Menu */}
-                <Box sx={{ ml: 'auto' }}>
+                <Box sx={{ml: 'auto'}}>
                     <IconButton
                         onClick={handleProfileMenuOpen}
                         sx={{
@@ -174,7 +175,7 @@ export default function NavBar() {
                             }
                         }}
                     >
-                        <Avatar sx={{ width: 36, height: 36, bgcolor: 'secondary.main', color: 'primary.main' }}>
+                        <Avatar sx={{width: 36, height: 36, bgcolor: 'secondary.main', color: 'primary.main'}}>
                             {user?.name?.[0]?.toUpperCase() || 'U'}
                         </Avatar>
                     </IconButton>
@@ -197,13 +198,19 @@ export default function NavBar() {
                             }
                         }}
                     >
-                        <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/profile'); }}>
-                            <Person sx={{ mr: 2 }} />
+                        <MenuItem onClick={() => {
+                            handleProfileMenuClose();
+                            navigate('/profile');
+                        }}>
+                            <Person sx={{mr: 2}}/>
                             Profile
                         </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={() => { handleProfileMenuClose(); handleLogout(); }}>
-                            <Logout sx={{ mr: 2 }} />
+                        <Divider/>
+                        <MenuItem onClick={() => {
+                            handleProfileMenuClose();
+                            handleLogout();
+                        }}>
+                            <Logout sx={{mr: 2}}/>
                             Logout
                         </MenuItem>
                     </Menu>
@@ -215,9 +222,9 @@ export default function NavBar() {
                         color="inherit"
                         edge="end"
                         onClick={handleDrawerToggle}
-                        sx={{ ml: 1 }}
+                        sx={{ml: 1}}
                     >
-                        <MenuIcon />
+                        <MenuIcon/>
                     </IconButton>
                 )}
             </Toolbar>
@@ -232,7 +239,7 @@ export default function NavBar() {
                     keepMounted: true,
                 }}
                 sx={{
-                    display: { xs: 'block', md: 'none' },
+                    display: {xs: 'block', md: 'none'},
                     '& .MuiDrawer-paper': {
                         boxSizing: 'border-box',
                         width: 280,

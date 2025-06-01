@@ -5,13 +5,13 @@ import {
     Typography,
     Button
 } from '@mui/material';
-import { Business } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import {Business} from '@mui/icons-material';
+import {useNavigate} from 'react-router-dom';
+import {useAuth} from '../../hooks/useAuth';
 
 export default function CreateListingHero() {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const {user} = useAuth();
 
     const handleCreateListing = () => {
         // Check if user is an owner
@@ -44,14 +44,14 @@ export default function CreateListingHero() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        gap: { xs: 3, lg: 5 },
-                        flexDirection: { xs: 'column', lg: 'row' },
-                        pl: { lg: '200px' }
+                        gap: {xs: 3, lg: 5},
+                        flexDirection: {xs: 'column', lg: 'row'},
+                        pl: {lg: '200px'}
                     }}
                 >
                     <Box sx={{
                         flex: 1,
-                        textAlign: { xs: 'center', lg: 'left' }
+                        textAlign: {xs: 'center', lg: 'left'}
                     }}>
                         <Typography
                             variant="h3"
@@ -60,7 +60,7 @@ export default function CreateListingHero() {
                                 fontWeight: 700,
                                 mt: 4,
                                 mb: 2,
-                                fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' }
+                                fontSize: {xs: '1.75rem', sm: '2rem', md: '2.5rem'}
                             }}
                         >
                             List Your Venue on RentEvent
@@ -69,10 +69,10 @@ export default function CreateListingHero() {
                             variant="h6"
                             sx={{
                                 color: 'secondary.main',
-                                mb: 4,
+                                mb: {xs: 2, lg: 4},
                                 fontWeight: 400,
-                                fontSize: { xs: '1rem', md: '1.25rem' },
-                                maxWidth: { md: '600px' }
+                                fontSize: {xs: '1rem', md: '1.25rem'},
+                                maxWidth: {md: '600px'}
                             }}
                         >
                             Have a unique space or location for events? Partner with us and showcase your venue
@@ -82,18 +82,18 @@ export default function CreateListingHero() {
 
                     <Box sx={{
                         flexShrink: 0,
-                        mb: { xs: 4, lg: 0 }
+                        mb: {xs: 4, lg: 0}
                     }}>
                         <Button
                             variant="contained"
                             color="secondary"
                             size="large"
-                            startIcon={<Business />}
+                            startIcon={<Business/>}
                             onClick={handleCreateListing}
                             sx={{
-                                px: { xs: 3, lg: 4 },
+                                px: {xs: 3, lg: 4},
                                 py: 1.5,
-                                fontSize: { xs: '1rem', md: '1.1rem' },
+                                fontSize: {xs: '1rem', md: '1.1rem'},
                             }}
                         >
                             Create Listing

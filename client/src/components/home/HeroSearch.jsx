@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
     Box,
     Container,
@@ -8,8 +8,7 @@ import {
     InputAdornment,
     IconButton,
     Menu,
-    MenuItem,
-    Chip
+    MenuItem
 } from '@mui/material';
 import {
     Search,
@@ -19,7 +18,7 @@ import {
 
 export default function HeroSearch() {
     const [searchValue, setSearchValue] = useState('');
-    const [locationAnchor, setLocationAnchor] = useState(null);
+    const [locationAnchor, setLocationAnchor] = useState();
     const [selectedLocation, setSelectedLocation] = useState('Krakow');
 
     const locations = ['Krakow', 'Warsaw', 'Wroclaw', 'Gdansk', 'Poznan', 'All Poland'];
@@ -49,7 +48,7 @@ export default function HeroSearch() {
                 backgroundImage: `url('/home/heroSearchBar.jpg')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                minHeight: { xs: '400px', md: '500px' },
+                minHeight: {xs: '400px', md: '500px'},
                 display: 'flex',
                 alignItems: 'center',
                 '&::before': {
@@ -64,15 +63,15 @@ export default function HeroSearch() {
                 }
             }}
         >
-            <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
-                <Box sx={{ textAlign: 'center', color: 'white', mb: {xs: 5, md: 10}, mt: {xs: 5, md: 0}}}>
+            <Container maxWidth="lg" sx={{position: 'relative', zIndex: 2}}>
+                <Box sx={{textAlign: 'center', color: 'white', mb: {xs: 5, md: 10}, mt: {xs: 5, md: 0}}}>
                     <Typography
                         variant="h2"
                         component="h1"
                         sx={{
                             fontWeight: 700,
                             mb: 2,
-                            fontSize: { xs: '2rem', md: '3rem' }
+                            fontSize: {xs: '2rem', md: '3rem'}
                         }}
                     >
                         Find the perfect venue for your next event - anytime, anywhere!
@@ -82,7 +81,7 @@ export default function HeroSearch() {
                         sx={{
                             color: 'secondary.main',
                             fontWeight: 600,
-                            fontSize: { xs: '1.5rem', md: '2rem' }
+                            fontSize: {xs: '1.5rem', md: '2rem'}
                         }}
                     >
                         Book. Host. Celebrate.
@@ -98,7 +97,7 @@ export default function HeroSearch() {
                         borderRadius: 3,
                         p: 1,
                         display: 'flex',
-                        flexDirection: { xs: 'column', md: 'row' },
+                        flexDirection: {xs: 'column', md: 'row'},
                         gap: 1,
                         boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
                     }}
@@ -116,16 +115,18 @@ export default function HeroSearch() {
                                 },
                             },
                         }}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Search sx={{ color: 'text.secondary' }} />
-                                </InputAdornment>
-                            ),
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Search sx={{color: 'text.secondary'}}/>
+                                    </InputAdornment>
+                                )
+                            }
                         }}
                     />
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', minWidth: { xs: '100%', md: 'auto' } }}>
+                    <Box sx={{display: 'flex', alignItems: 'center', minWidth: {xs: '100%', md: 'auto'}}}>
                         <IconButton
                             onClick={handleLocationClick}
                             sx={{
@@ -137,11 +138,11 @@ export default function HeroSearch() {
                                 }
                             }}
                         >
-                            <LocationOn sx={{ color: 'text.secondary', mr: 1 }} />
-                            <Typography variant="body1" sx={{ color: 'text.primary' }}>
+                            <LocationOn sx={{color: 'text.secondary', mr: 1}}/>
+                            <Typography variant="body1" sx={{color: 'text.primary'}}>
                                 {selectedLocation}
                             </Typography>
-                            <KeyboardArrowDown sx={{ ml: 1, color: 'text.secondary' }} />
+                            <KeyboardArrowDown sx={{ml: 1, color: 'text.secondary'}}/>
                         </IconButton>
 
                         <Menu
@@ -169,9 +170,7 @@ export default function HeroSearch() {
                         sx={{
                             px: 4,
                             py: 1.5,
-                            borderRadius: 2,
-                            fontWeight: 600,
-                            minWidth: { xs: '100%', md: '120px' }
+                            minWidth: {xs: '100%', md: '120px'}
                         }}
                     >
                         Search
