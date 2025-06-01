@@ -3,10 +3,8 @@ import {
     Card,
     CardMedia,
     CardContent,
-    CardActions,
     Box,
     Typography,
-    Button,
     IconButton,
     Chip,
     Rating
@@ -28,11 +26,13 @@ export default function VenueCard({ venue, isFavorite, onToggleFavorite, onViewD
                 borderRadius: 3,
                 overflow: 'hidden',
                 transition: 'all 0.3s ease',
+                cursor: 'pointer',
                 '&:hover': {
                     transform: 'translateY(-4px)',
                     boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
                 }
             }}
+            onClick={onViewDetails}
         >
             <Box sx={{ position: 'relative' }}>
                 <CardMedia
@@ -41,13 +41,14 @@ export default function VenueCard({ venue, isFavorite, onToggleFavorite, onViewD
                     image={venue.image}
                     alt={venue.name}
                     sx={{
-                        cursor: 'pointer',
                         objectFit: 'cover'
                     }}
-                    onClick={onViewDetails}
                 />
                 <IconButton
-                    onClick={onToggleFavorite}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleFavorite();
+                    }}
                     sx={{
                         position: 'absolute',
                         top: 8,
@@ -64,20 +65,6 @@ export default function VenueCard({ venue, isFavorite, onToggleFavorite, onViewD
                         <FavoriteBorder />
                     )}
                 </IconButton>
-                {venue.featured && (
-                    <Chip
-                        label="Featured"
-                        size="small"
-                        sx={{
-                            position: 'absolute',
-                            top: 12,
-                            left: 12,
-                            backgroundColor: 'secondary.main',
-                            color: 'primary.main',
-                            fontWeight: 600
-                        }}
-                    />
-                )}
                 {venue.tags && venue.tags.map((tag, index) => (
                     <Chip
                         key={index}
@@ -95,19 +82,17 @@ export default function VenueCard({ venue, isFavorite, onToggleFavorite, onViewD
                 ))}
             </Box>
 
-            <CardContent sx={{ flex: 1, pb: 1 }}>
+            <CardContent sx={{ flex: 1 }}>
                 <Typography
                     variant="h6"
                     component="h3"
                     sx={{
                         fontWeight: 600,
                         mb: 1,
-                        cursor: 'pointer',
                         '&:hover': {
                             color: 'primary.main'
                         }
                     }}
-                    onClick={onViewDetails}
                 >
                     {venue.name}
                 </Typography>
@@ -154,22 +139,6 @@ export default function VenueCard({ venue, isFavorite, onToggleFavorite, onViewD
                     {venue.priceRange}
                 </Typography>
             </CardContent>
-
-            <CardActions sx={{ p: 2, pt: 0 }}>
-                <Button
-                    fullWidth
-                    variant="outlined"
-                    color="primary"
-                    onClick={onViewDetails}
-                    sx={{
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        fontWeight: 600
-                    }}
-                >
-                    View Details
-                </Button>
-            </CardActions>
         </Card>
     );
 }

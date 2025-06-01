@@ -21,8 +21,7 @@ const mockVenues = [
         reviews: 14,
         priceRange: 'PLN 400-600 / guest',
         image: '/home/weddingAndBanquetHalls.jpg',
-        tags: ['Wedding & Banquet Halls'],
-        featured: true
+        tags: ['Wedding & Banquet Halls']
     },
     {
         id: 2,
@@ -34,8 +33,7 @@ const mockVenues = [
         reviews: 16,
         priceRange: 'PLN 450 / guest',
         image: '/home/uniqueAndThemedSpaces.jpg',
-        tags: ['Unique & Themed Spaces'],
-        featured: false
+        tags: ['Unique & Themed Spaces']
     },
     {
         id: 3,
@@ -47,8 +45,7 @@ const mockVenues = [
         reviews: 8,
         priceRange: 'Ask for an offer',
         image: '/home/clubsAndBars.jpg',
-        tags: ['Clubs & Bars'],
-        featured: false
+        tags: ['Clubs & Bars']
     },
     {
         id: 4,
@@ -60,8 +57,7 @@ const mockVenues = [
         reviews: 48,
         priceRange: 'PLN 200-300 / guest',
         image: '/home/outdoorAndGardenSpaces.jpg',
-        tags: ['Wedding & Banquet Halls'],
-        featured: true
+        tags: ['Wedding & Banquet Halls']
     },
     {
         id: 5,
@@ -73,8 +69,7 @@ const mockVenues = [
         reviews: 12,
         priceRange: 'Ask for an offer',
         image: '/home/conferenceAndMeetingRooms.jpg',
-        tags: ['Conference & Meeting Rooms'],
-        featured: false
+        tags: ['Conference & Meeting Rooms']
     },
     {
         id: 6,
@@ -86,8 +81,7 @@ const mockVenues = [
         reviews: 160,
         priceRange: 'PLN 370 / guest',
         image: '/home/loftsAndIndustrialVenues.jpg',
-        tags: ['Lofts & Industrial Venues'],
-        featured: false
+        tags: ['Lofts & Industrial Venues']
     }
 ];
 
@@ -124,7 +118,7 @@ export default function PopularVenues() {
 
             <Grid container spacing={3}>
                 {mockVenues.map((venue) => (
-                    <Grid item xs={12} sm={6} md={4} key={venue.id}>
+                    <Grid item size={{xs: 12, sm: 6, md: 4}} key={venue.id}>
                         <VenueCard
                             venue={venue}
                             isFavorite={favorites.includes(venue.id)}
