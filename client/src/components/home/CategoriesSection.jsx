@@ -4,10 +4,6 @@ import {
     Container,
     Typography,
     Grid,
-    Card,
-    CardMedia,
-    CardContent,
-    CardActionArea
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -72,90 +68,81 @@ export default function CategoriesSection() {
                 Explore Categories
             </Typography>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={3} justifyContent="center">
                 {categories.map((category) => (
-                    <Grid item xs={6} sm={4} md={4} lg={2} key={category.id}>
-                        <Card
+                    <Grid item size={{xs: 6, sm: 4, lg: 2}} key={category.id}>
+                        <Box
+                            onClick={() => handleCategoryClick(category)}
                             sx={{
-                                borderRadius: 3,
-                                overflow: 'hidden',
+                                cursor: 'pointer',
+                                textAlign: 'center',
                                 transition: 'all 0.3s ease',
                                 '&:hover': {
                                     transform: 'translateY(-8px)',
-                                    boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
+                                    '& .category-image': {
+                                        transform: 'scale(1.1)',
+                                        boxShadow: '0 12px 24px rgba(0,0,0,0.25)'
+                                    },
+                                    '& .category-name': {
+                                        color: 'secondary.main'
+                                    }
                                 }
                             }}
                         >
-                            <CardActionArea onClick={() => handleCategoryClick(category)}>
+                            <Box
+                                className="category-image"
+                                sx={{
+                                    width: { xs: 120, sm: 140, md: 160 },
+                                    height: { xs: 120, sm: 140, md: 160 },
+                                    borderRadius: '50%',
+                                    overflow: 'hidden',
+                                    mx: 'auto',
+                                    mb: 2,
+                                    position: 'relative',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                    transition: 'all 0.3s ease',
+                                    backgroundColor: '#f5f5f5'
+                                }}
+                            >
+                                <Box
+                                    component="img"
+                                    src={category.image}
+                                    alt={category.name}
+                                    sx={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover'
+                                    }}
+                                />
                                 <Box
                                     sx={{
-                                        position: 'relative',
-                                        paddingTop: '100%',
-                                        overflow: 'hidden'
-                                    }}
-                                >
-                                    <CardMedia
-                                        component="img"
-                                        image={category.image}
-                                        alt={category.name}
-                                        sx={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            transition: 'transform 0.3s ease',
-                                            '&:hover': {
-                                                transform: 'scale(1.1)'
-                                            }
-                                        }}
-                                    />
-                                    <Box
-                                        sx={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            background: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%)',
-                                            zIndex: 1
-                                        }}
-                                    />
-                                </Box>
-                                <CardContent
-                                    sx={{
                                         position: 'absolute',
-                                        bottom: 0,
+                                        top: 0,
                                         left: 0,
                                         right: 0,
-                                        color: 'white',
-                                        zIndex: 2,
-                                        p: 2
+                                        bottom: 0,
+                                        background: 'radial-gradient(circle, transparent 30%, rgba(0,0,0,0.4) 100%)',
+                                        pointerEvents: 'none'
                                     }}
-                                >
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            fontWeight: 600,
-                                            mb: 0.5,
-                                            fontSize: { xs: '0.875rem', md: '1rem' }
-                                        }}
-                                    >
-                                        {category.name}
-                                    </Typography>
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            opacity: 0.9,
-                                            fontSize: { xs: '0.75rem', md: '0.875rem' }
-                                        }}
-                                    >
-                                        {category.count} venues
-                                    </Typography>
-                                </CardContent>
-                            </CardActionArea>
-                        </Card>
+                                />
+                            </Box>
+
+                            <Typography
+                                className="category-name"
+                                variant="body1"
+                                sx={{
+                                    fontWeight: 600,
+                                    mb: 0.5,
+                                    color: 'text.primary',
+                                    transition: 'color 0.3s ease',
+                                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                                }}
+                            >
+                                {category.name} ({category.count})
+                            </Typography>
+
+
+                        </Box>
                     </Grid>
                 ))}
             </Grid>
