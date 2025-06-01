@@ -4,6 +4,7 @@ import NavBar from '../components/common/NavBar';
 import HeroSearch from '../components/home/HeroSearch';
 import CategoriesSection from '../components/home/CategoriesSection';
 import PopularVenues from '../components/home/PopularVenues';
+import CreateListingHero from '../components/home/CreateListingHero';
 import Footer from '../components/common/Footer';
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
                 <HeroSearch />
                 <CategoriesSection />
                 <PopularVenues />
+                <CreateListingHero />
             </Box>
             <Footer />
         </Box>

@@ -138,9 +138,6 @@ export default function PopularVenues() {
                     sx={{
                         px: 6,
                         py: 1.5,
-                        borderRadius: 3,
-                        fontWeight: 600,
-                        textTransform: 'none',
                         fontSize: '1.1rem'
                     }}
                 >
