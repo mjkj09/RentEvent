@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Paper,
     TextField,
@@ -11,7 +11,12 @@ import {
 } from '@mui/icons-material';
 
 export default function SearchBar({ value, onChange }) {
-    const [localValue, setLocalValue] = useState(value);
+    const [localValue, setLocalValue] = useState(value || '');
+
+    // Sync local value with prop value
+    useEffect(() => {
+        setLocalValue(value || '');
+    }, [value]);
 
     const handleChange = (event) => {
         const newValue = event.target.value;
