@@ -5,6 +5,7 @@ import theme from './theme/theme';
 import Landing from './views/Landing';
 import Auth from './views/Auth';
 import Home from './views/Home';
+import Search from './views/Search';
 import {AuthProvider} from './contexts/AuthProvider';
 import {useAuth} from './hooks/useAuth';
 
@@ -33,7 +34,7 @@ function App() {
                     }/>
                     <Route path="/search" element={
                         <ProtectedRoute>
-                            <div>Search Page - To be implemented</div>
+                            <Search/>
                         </ProtectedRoute>
                     }/>
                     <Route path="/requests" element={
