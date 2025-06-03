@@ -15,13 +15,32 @@ import {
     LocationOn,
     KeyboardArrowDown
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 export default function HeroSearch() {
     const [searchValue, setSearchValue] = useState('');
     const [locationAnchor, setLocationAnchor] = useState();
-    const [selectedLocation, setSelectedLocation] = useState('Krakow');
+    const [selectedLocation, setSelectedLocation] = useState('All Poland');
+    const navigate = useNavigate();
 
-    const locations = ['Krakow', 'Warsaw', 'Wroclaw', 'Gdansk', 'Poznan', 'All Poland'];
+    const regions = [
+        'All Poland',
+        'Malopolska',
+        'Mazowieckie',
+        'Dolnoslaskie',
+        'Pomorskie',
+        'Wielkopolskie',
+        'Slaskie',
+        'Lubelskie',
+        'Podlaskie',
+        'Zachodniopomorskie',
+        'Lubuskie',
+        'Kujawsko-Pomorskie',
+        'Lodzkie',
+        'Swietokrzyskie',
+        'Podkarpackie',
+        'Warminsko-Mazurskie'
+    ];
 
     const handleLocationClick = (event) => {
         setLocationAnchor(event.currentTarget);
@@ -37,8 +56,27 @@ export default function HeroSearch() {
     };
 
     const handleSearch = () => {
-        console.log('Searching for:', searchValue, 'in', selectedLocation);
-        // TODO: Implement search functionality
+        // Build search URL with query parameters
+        const searchParams = new URLSearchParams();
+
+        if (searchValue.trim()) {
+            searchParams.set('q', searchValue.trim());
+        }
+
+        if (selectedLocation !== 'All Poland') {
+            searchParams.set('region', selectedLocation);
+        }
+
+        // Navigate to search page with parameters
+        const searchUrl = `/search${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+        navigate(searchUrl);
+    };
+
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleSearch();
+        }
     };
 
     return (
@@ -107,6 +145,7 @@ export default function HeroSearch() {
                         placeholder="Search Venues, Categories, Location..."
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
+                        onKeyDown={handleKeyPress}
                         sx={{
                             flex: 1,
                             '& .MuiOutlinedInput-root': {
@@ -150,13 +189,13 @@ export default function HeroSearch() {
                             open={Boolean(locationAnchor)}
                             onClose={handleLocationClose}
                         >
-                            {locations.map((location) => (
+                            {regions.map((region) => (
                                 <MenuItem
-                                    key={location}
-                                    onClick={() => handleLocationSelect(location)}
-                                    selected={location === selectedLocation}
+                                    key={region}
+                                    onClick={() => handleLocationSelect(region)}
+                                    selected={region === selectedLocation}
                                 >
-                                    {location}
+                                    {region}
                                 </MenuItem>
                             ))}
                         </Menu>
