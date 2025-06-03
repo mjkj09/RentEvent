@@ -15,7 +15,7 @@ export default function HeroBanner() {
     };
 
     return (
-        <Paper elevation={8} sx={{p: 4, mb: 4, textAlign: 'center', backgroundColor: 'primary.main'}}>
+        <Paper elevation={8} sx={{p: 4, mb: 4, textAlign: 'center', borderRadius: 8, backgroundColor: 'primary.main'}}>
             <Box sx={{display: 'flex', justifyContent: 'center', mb: 2}}>
                 <img src={logoSvg} alt="RentEvent Logo" height="80"/>
             </Box>
