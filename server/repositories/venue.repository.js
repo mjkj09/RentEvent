@@ -22,5 +22,11 @@ exports.insert = (data) =>
 exports.update = (id, data) =>
     Venue.findByIdAndUpdate(id, data, { new: true }).exec();
 
+exports.updateById = (id, updateData) =>
+    Venue.findByIdAndUpdate(id, updateData, { new: true, runValidators: true })
+        .populate('owner', 'name surname email phone')
+        .populate('company', 'name nip')
+        .exec();
+
 exports.remove = (id) =>
     Venue.findByIdAndDelete(id).then(r => !!r);

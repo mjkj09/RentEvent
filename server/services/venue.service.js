@@ -91,3 +91,21 @@ exports.deleteVenue = async (id) => {
         throw new AppError('Venue not found', 404);
     }
 };
+
+exports.updateVenueRating = async (venueId, rating, reviewCount) => {
+    try {
+        const venue = await venueRepository.updateById(venueId, {
+            rating: rating,
+            reviews: reviewCount,
+            updatedAt: new Date()
+        });
+
+        if (!venue) {
+            throw new AppError('Venue not found', 404);
+        }
+
+        return venue;
+    } catch (error) {
+        throw error;
+    }
+};
