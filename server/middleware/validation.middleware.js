@@ -1,13 +1,12 @@
 const Joi = require('joi');
 const { errorResponse } = require('../utils/response.utils');
 
-// User validation schemas
 const userRegistrationSchema = Joi.object({
     name: Joi.string().min(2).max(50).required(),
     surname: Joi.string().min(2).max(50).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
-    role: Joi.string().valid('renter', 'owner').default('renter')
+    role: Joi.string().valid('renter').default('renter') // Only renter allowed at registration
 });
 
 const userLoginSchema = Joi.object({
