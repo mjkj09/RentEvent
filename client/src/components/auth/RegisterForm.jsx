@@ -6,11 +6,7 @@ import {
     Link,
     IconButton,
     Divider,
-    FormControl,
-    Select,
-    MenuItem,
     Grid,
-    InputAdornment,
     Alert,
     CircularProgress,
     LinearProgress
@@ -20,8 +16,7 @@ import {
     VisibilityOff,
     Email,
     Lock,
-    Person,
-    Business
+    Person
 } from '@mui/icons-material';
 import FormField from '../common/FormField';
 import { useAuth } from '../../hooks/useAuth';
@@ -34,8 +29,8 @@ export default function RegisterForm({toggleMode}) {
         firstName: '',
         lastName: '',
         email: '',
-        password: '',
-        accountType: 'renter'
+        password: ''
+        // role removed - everyone starts as renter
     });
     const [formError, setFormError] = useState('');
     const [passwordStrength, setPasswordStrength] = useState({
@@ -65,7 +60,6 @@ export default function RegisterForm({toggleMode}) {
 
         const result = zxcvbn(password);
         const score = result.score;
-
 
         if (!minLength) {
             return {
@@ -174,7 +168,11 @@ export default function RegisterForm({toggleMode}) {
         setFormError('');
 
         try {
-            await register(formData);
+            // Everyone registers as renter - role is set automatically
+            await register({
+                ...formData,
+                role: 'renter'
+            });
             navigate('/');
         } catch (error) {
             setFormError(error.message);
@@ -233,27 +231,6 @@ export default function RegisterForm({toggleMode}) {
                 required
             />
 
-            <Box sx={{mb: 3}}>
-                <Typography variant="body2" sx={{mb: 1, fontWeight: 500}}>
-                    Account Type
-                </Typography>
-                <FormControl fullWidth>
-                    <Select
-                        variant="outlined"
-                        value={formData.accountType}
-                        onChange={handleChange('accountType')}
-                        startAdornment={
-                            <InputAdornment position="start">
-                                <Business color="action"/>
-                            </InputAdornment>
-                        }
-                    >
-                        <MenuItem value="renter">Event Organizer (Renter)</MenuItem>
-                        <MenuItem value="owner">Venue Owner</MenuItem>
-                    </Select>
-                </FormControl>
-            </Box>
-
             <FormField
                 sx={{mb: 1}}
                 label="Password"
@@ -290,7 +267,6 @@ export default function RegisterForm({toggleMode}) {
                     </Typography>
                 </Box>
             )}
-
 
             {formError && (
                 <Alert severity="error" sx={{ mb: 2, mt: 3}}>
