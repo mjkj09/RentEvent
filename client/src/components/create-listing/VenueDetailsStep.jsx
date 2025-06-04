@@ -5,75 +5,97 @@ import {
     Button,
     Grid,
     Alert,
-    FormControl,
-    InputLabel,
-    Select,
     MenuItem,
-    TextField
+    FormControl,
+    Select,
+    Paper
 } from '@mui/material';
 import {
     Business,
     LocationOn,
-    ArrowForward,
-    Description
+    Description,
+    Category,
+    ArrowForward
 } from '@mui/icons-material';
 import FormField from '../common/FormField';
 import { VENUE_CATEGORIES, REGIONS } from '../../constants/venueConstants';
 
 export default function VenueDetailsStep({ data, onDataChange, onNext }) {
-    const [formError, setFormError] = useState('');
+    const [formData, setFormData] = useState({
+        name: data.name || '',
+        category: data.category || '',
+        location: {
+            street: data.location?.street || '',
+            city: data.location?.city || '',
+            region: data.location?.region || ''
+        },
+        description: data.description || ''
+    });
+    const [error, setError] = useState('');
 
     const handleChange = (field, isLocation = false) => (event) => {
         const value = event.target.value;
+        setError('');
 
+        let newFormData;
         if (isLocation) {
-            const newData = {
+            newFormData = {
+                ...formData,
                 location: {
-                    ...data.location,
+                    ...formData.location,
                     [field]: value
                 }
             };
-            onDataChange(newData);
         } else {
-            onDataChange({ [field]: value });
+            newFormData = {
+                ...formData,
+                [field]: value
+            };
         }
 
-        if (formError) setFormError('');
+        setFormData(newFormData);
+        // Call onDataChange immediately when data changes
+        onDataChange(newFormData);
     };
 
     const validateForm = () => {
-        if (!data.name?.trim()) {
-            setFormError('Venue name is required');
+        if (!formData.name.trim()) {
+            setError('Venue name is required');
             return false;
         }
 
-        if (!data.category) {
-            setFormError('Venue category is required');
+        if (formData.name.trim().length < 3) {
+            setError('Venue name must be at least 3 characters long');
             return false;
         }
 
-        if (!data.location?.street?.trim()) {
-            setFormError('Street address is required');
+        if (!formData.category) {
+            setError('Please select a venue category');
             return false;
         }
 
-        if (!data.location?.city?.trim()) {
-            setFormError('City is required');
+        if (!formData.location.street.trim()) {
+            setError('Street address is required');
             return false;
         }
 
-        if (!data.location?.region) {
-            setFormError('Region is required');
+        if (!formData.location.city.trim()) {
+            setError('City is required');
             return false;
         }
 
-        if (!data.description?.trim()) {
-            setFormError('Venue description is required');
+        if (!formData.location.region) {
+            setError('Please select a region');
             return false;
         }
 
-        if (data.description.trim().length < 20) {
-            setFormError('Description should be at least 20 characters long');
+        if (!formData.description.trim()) {
+            setError('Venue description is required');
+            return false;
+        }
+
+        if (formData.description.trim().length < 20) {
+            setError('Description must be at least 20 characters long');
             return false;
         }
 
@@ -88,36 +110,45 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
 
     return (
         <Box>
-            {/* Venue Details Section */}
-            <Box sx={{ mb: 4 }}>
+            {/* Basic Information Section */}
+            <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
                 <Typography
-                    variant="h5"
+                    variant="h6"
                     sx={{ mb: 3, display: 'flex', alignItems: 'center' }}
                 >
                     <Business sx={{ mr: 1, color: 'primary.main' }} />
-                    Venue Details
+                    Basic Information
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid item size={{xs: 12}}>
                         <FormField
                             label="Venue Name"
                             placeholder="Enter your venue name"
-                            value={data.name || ''}
+                            value={formData.name}
                             onChange={handleChange('name')}
                             required
                             sx={{ mb: 0 }}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid item size={{xs: 12, sm: 6}}>
+                        <Typography
+                            variant="body2"
+                            sx={{ mb: 1, fontWeight: 500, color: 'text.primary' }}
+                        >
+                            Category *
+                        </Typography>
                         <FormControl fullWidth required>
-                            <InputLabel>Venue Category</InputLabel>
                             <Select
-                                value={data.category || ''}
+                                variant="outlined"
+                                value={formData.category}
                                 onChange={handleChange('category')}
-                                label="Venue Category"
+                                displayEmpty
                             >
+                                <MenuItem value="" disabled>
+                                    Select venue category
+                                </MenuItem>
                                 {VENUE_CATEGORIES.map((category) => (
                                     <MenuItem key={category} value={category}>
                                         {category}
@@ -127,21 +158,16 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                         </FormControl>
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
-                        {/* Placeholder for future features */}
-                        <Box sx={{ height: '56px', display: 'flex', alignItems: 'center' }}>
-                            <Typography variant="body2" color="text.secondary">
-                                Additional venue features coming soon
-                            </Typography>
-                        </Box>
+                    <Grid item size={{xs: 12, sm: 6}}>
+                        {/* Empty space for layout balance */}
                     </Grid>
                 </Grid>
-            </Box>
+            </Paper>
 
             {/* Location Section */}
-            <Box sx={{ mb: 4 }}>
+            <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
                 <Typography
-                    variant="h5"
+                    variant="h6"
                     sx={{ mb: 3, display: 'flex', alignItems: 'center' }}
                 >
                     <LocationOn sx={{ mr: 1, color: 'primary.main' }} />
@@ -149,36 +175,45 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid item size={{xs: 12}}>
                         <FormField
                             label="Street Address"
                             placeholder="ul. Przykładowa 123"
-                            value={data.location?.street || ''}
+                            value={formData.location.street}
                             onChange={handleChange('street', true)}
                             required
                             sx={{ mb: 0 }}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid item size={{xs: 12, sm: 6}}>
                         <FormField
                             label="City"
                             placeholder="Krakow"
-                            value={data.location?.city || ''}
+                            value={formData.location.city}
                             onChange={handleChange('city', true)}
                             required
                             sx={{ mb: 0 }}
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid item size={{xs: 12, sm: 6}}>
+                        <Typography
+                            variant="body2"
+                            sx={{ mb: 1, fontWeight: 500, color: 'text.primary' }}
+                        >
+                            Region *
+                        </Typography>
                         <FormControl fullWidth required>
-                            <InputLabel>Region</InputLabel>
                             <Select
-                                value={data.location?.region || ''}
+                                variant="outlined"
+                                value={formData.location.region}
                                 onChange={handleChange('region', true)}
-                                label="Region"
+                                displayEmpty
                             >
+                                <MenuItem value="" disabled>
+                                    Select region
+                                </MenuItem>
                                 {REGIONS.map((region) => (
                                     <MenuItem key={region} value={region}>
                                         {region}
@@ -188,50 +223,51 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                         </FormControl>
                     </Grid>
                 </Grid>
-            </Box>
+            </Paper>
 
-            {/* Additional Information Section */}
-            <Box sx={{ mb: 4 }}>
+            {/* Description Section */}
+            <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
                 <Typography
-                    variant="h5"
+                    variant="h6"
                     sx={{ mb: 3, display: 'flex', alignItems: 'center' }}
                 >
                     <Description sx={{ mr: 1, color: 'primary.main' }} />
-                    Additional Information
+                    Description
                 </Typography>
 
-                <TextField
-                    fullWidth
-                    multiline
-                    rows={4}
-                    label="Venue Description"
-                    placeholder="Describe your venue, its unique features, amenities, and what makes it special for events..."
-                    value={data.description || ''}
-                    onChange={handleChange('description')}
-                    required
-                    helperText={`${data.description?.length || 0} characters (minimum 20)`}
-                    sx={{ mb: 2 }}
-                />
-            </Box>
+                <Grid container spacing={3}>
+                    <Grid item size={{xs: 12}}>
+                        <FormField
+                            label="Venue Description"
+                            placeholder="Describe your venue, its features, amenities, and what makes it special..."
+                            value={formData.description}
+                            onChange={handleChange('description')}
+                            multiline
+                            rows={4}
+                            helperText="Minimum 20 characters. Include details about the space, features, and amenities."
+                            required
+                            sx={{ mb: 0 }}
+                        />
+                    </Grid>
+                </Grid>
+            </Paper>
 
             {/* Error Alert */}
-            {formError && (
+            {error && (
                 <Alert severity="error" sx={{ mb: 3 }}>
-                    {formError}
+                    {error}
                 </Alert>
             )}
 
-            {/* Navigation */}
+            {/* Navigation Button */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
                     variant="contained"
-                    color="primary"
-                    size="large"
                     onClick={handleNext}
                     endIcon={<ArrowForward />}
                     sx={{ px: 4 }}
                 >
-                    Save & Continue
+                    Continue to Pricing
                 </Button>
             </Box>
         </Box>

@@ -7,73 +7,94 @@ import {
     Alert,
     FormControlLabel,
     Switch,
-    InputAdornment,
-    Card,
-    CardContent
+    Paper
 } from '@mui/material';
 import {
-    MonetizationOn,
     People,
+    AttachMoney,
     ArrowBack,
-    ArrowForward,
-    VisibilityOff,
-    Visibility
+    ArrowForward
 } from '@mui/icons-material';
 import FormField from '../common/FormField';
 
 export default function PricingCapacityStep({ data, onDataChange, onNext, onBack }) {
-    const [formError, setFormError] = useState('');
+    const [formData, setFormData] = useState({
+        capacity: data.capacity || '',
+        pricing: {
+            minPricePerPerson: data.pricing?.minPricePerPerson || '',
+            maxPricePerPerson: data.pricing?.maxPricePerPerson || '',
+            isPriceHidden: data.pricing?.isPriceHidden || false
+        }
+    });
+    const [error, setError] = useState('');
 
-    const handleChange = (field, isPricing = false) => (event) => {
+    const handleChange = (field, isNested = false, nestedField = null) => (event) => {
         const value = event.target.value;
+        setError('');
 
-        if (isPricing) {
-            const newData = {
-                pricing: {
-                    ...data.pricing,
-                    [field]: value
+        let newFormData;
+        if (isNested && nestedField) {
+            newFormData = {
+                ...formData,
+                [field]: {
+                    ...formData[field],
+                    [nestedField]: value
                 }
             };
-            onDataChange(newData);
         } else {
-            onDataChange({ [field]: value });
+            newFormData = {
+                ...formData,
+                [field]: value
+            };
         }
 
-        if (formError) setFormError('');
+        setFormData(newFormData);
+        // Call onDataChange immediately when data changes
+        onDataChange(newFormData);
     };
 
     const handlePriceHiddenToggle = (event) => {
-        const newData = {
+        const isHidden = event.target.checked;
+        setError('');
+
+        const newFormData = {
+            ...formData,
             pricing: {
-                ...data.pricing,
-                isPriceHidden: event.target.checked
+                ...formData.pricing,
+                isPriceHidden: isHidden,
+                // Clear prices when hiding them
+                minPricePerPerson: isHidden ? '' : formData.pricing.minPricePerPerson,
+                maxPricePerPerson: isHidden ? '' : formData.pricing.maxPricePerPerson
             }
         };
-        onDataChange(newData);
+
+        setFormData(newFormData);
+        onDataChange(newFormData);
     };
 
     const validateForm = () => {
-        if (!data.capacity || parseInt(data.capacity) <= 0) {
-            setFormError('Valid capacity is required');
+        // Validate capacity
+        const capacity = parseInt(formData.capacity);
+        if (!formData.capacity || isNaN(capacity) || capacity <= 0) {
+            setError('Please enter a valid capacity (number greater than 0)');
             return false;
         }
 
-        if (!data.pricing.isPriceHidden) {
-            const minPrice = parseFloat(data.pricing.minPricePerPerson);
-            const maxPrice = parseFloat(data.pricing.maxPricePerPerson);
+        // Validate pricing logic
+        if (!formData.pricing.isPriceHidden) {
+            const minPrice = parseFloat(formData.pricing.minPricePerPerson);
+            const maxPrice = parseFloat(formData.pricing.maxPricePerPerson);
 
-            if (data.pricing.minPricePerPerson && minPrice <= 0) {
-                setFormError('Minimum price must be greater than 0');
+            // If prices are visible, at least min price must be provided
+            if (!formData.pricing.minPricePerPerson || isNaN(minPrice) || minPrice <= 0) {
+                setError('Please enter a valid minimum price per person');
                 return false;
             }
 
-            if (data.pricing.maxPricePerPerson && maxPrice <= 0) {
-                setFormError('Maximum price must be greater than 0');
-                return false;
-            }
-
-            if (minPrice && maxPrice && minPrice > maxPrice) {
-                setFormError('Minimum price cannot be higher than maximum price');
+            // If max price is provided, validate it
+            if (formData.pricing.maxPricePerPerson &&
+                (!isNaN(maxPrice) && maxPrice < minPrice)) {
+                setError('Maximum price cannot be lower than minimum price');
                 return false;
             }
         }
@@ -83,222 +104,154 @@ export default function PricingCapacityStep({ data, onDataChange, onNext, onBack
 
     const handleNext = () => {
         if (validateForm()) {
+            // Ensure pricing logic is correct before proceeding
+            const finalFormData = { ...formData };
+
+            if (finalFormData.pricing.isPriceHidden) {
+                // Hidden prices - set both to null
+                finalFormData.pricing.minPricePerPerson = '';
+                finalFormData.pricing.maxPricePerPerson = '';
+            } else {
+                // Visible prices - ensure both are set
+                if (!finalFormData.pricing.maxPricePerPerson && finalFormData.pricing.minPricePerPerson) {
+                    finalFormData.pricing.maxPricePerPerson = finalFormData.pricing.minPricePerPerson;
+                }
+            }
+
+            onDataChange(finalFormData);
             onNext();
         }
     };
 
     return (
         <Box>
-            {/* Pricing Section */}
-            <Box sx={{ mb: 4 }}>
-                <Typography
-                    variant="h5"
-                    sx={{ mb: 3, display: 'flex', alignItems: 'center' }}
-                >
-                    <MonetizationOn sx={{ mr: 1, color: 'primary.main' }} />
-                    Pricing
-                </Typography>
-
-                {/* Price Hidden Toggle */}
-                <Card variant="outlined" sx={{ mb: 3 }}>
-                    <CardContent>
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={data.pricing?.isPriceHidden || false}
-                                    onChange={handlePriceHiddenToggle}
-                                    color="primary"
-                                />
-                            }
-                            label={
-                                <Box>
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                                        Hide pricing from public
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Enable this if you prefer to discuss pricing directly with clients
-                                    </Typography>
-                                </Box>
-                            }
-                            sx={{ alignItems: 'flex-start' }}
-                        />
-                    </CardContent>
-                </Card>
-
-                {/* Pricing Fields */}
-                {!data.pricing?.isPriceHidden && (
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6}>
-                            <FormField
-                                label="Minimum Price per Person"
-                                type="number"
-                                placeholder="0"
-                                value={data.pricing?.minPricePerPerson || ''}
-                                onChange={handleChange('minPricePerPerson', true)}
-                                sx={{ mb: 0 }}
-                                slotProps={{
-                                    input: {
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                PLN
-                                            </InputAdornment>
-                                        ),
-                                        inputProps: {
-                                            min: 0,
-                                            step: 0.01
-                                        }
-                                    }
-                                }}
-                                helperText="Leave empty if you don't have a minimum price"
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <FormField
-                                label="Maximum Price per Person"
-                                type="number"
-                                placeholder="0"
-                                value={data.pricing?.maxPricePerPerson || ''}
-                                onChange={handleChange('maxPricePerPerson', true)}
-                                sx={{ mb: 0 }}
-                                slotProps={{
-                                    input: {
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                PLN
-                                            </InputAdornment>
-                                        ),
-                                        inputProps: {
-                                            min: 0,
-                                            step: 0.01
-                                        }
-                                    }
-                                }}
-                                helperText="Leave empty if you don't have a maximum price"
-                            />
-                        </Grid>
-                    </Grid>
-                )}
-
-                {data.pricing?.isPriceHidden && (
-                    <Box sx={{
-                        textAlign: 'center',
-                        py: 3,
-                        backgroundColor: 'grey.50',
-                        borderRadius: 2,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 1
-                    }}>
-                        <VisibilityOff sx={{ color: 'text.secondary' }} />
-                        <Typography color="text.secondary">
-                            Pricing will be hidden from public listings
-                        </Typography>
-                    </Box>
-                )}
-            </Box>
-
             {/* Capacity Section */}
-            <Box sx={{ mb: 4 }}>
+            <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
                 <Typography
-                    variant="h5"
+                    variant="h6"
                     sx={{ mb: 3, display: 'flex', alignItems: 'center' }}
                 >
                     <People sx={{ mr: 1, color: 'primary.main' }} />
-                    Capacity
+                    Venue Capacity
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item size={{xs: 12, sm: 6}}>
                         <FormField
-                            label="Maximum Guests"
-                            type="number"
-                            placeholder="50"
-                            value={data.capacity || ''}
+                            label="Maximum Capacity"
+                            placeholder="e.g., 100"
+                            value={formData.capacity}
                             onChange={handleChange('capacity')}
-                            required
-                            sx={{ mb: 0 }}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            guests
-                                        </InputAdornment>
-                                    ),
-                                    inputProps: {
-                                        min: 1,
-                                        step: 1
-                                    }
-                                }
+                            type="number"
+                            inputProps={{
+                                min: 1,
+                                max: 10000
                             }}
                             helperText="Maximum number of guests your venue can accommodate"
+                            required
+                            sx={{ mb: 0 }}
                         />
                     </Grid>
-
-                    <Grid item xs={12} sm={6}>
-                        {/* Preview Card */}
-                        <Card variant="outlined" sx={{ height: 'fit-content' }}>
-                            <CardContent>
-                                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                                    Capacity Preview
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {data.capacity ? `Up to ${data.capacity} guests` : 'Enter capacity above'}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
                 </Grid>
-            </Box>
+            </Paper>
 
-            {/* Pricing Preview */}
-            {!data.pricing?.isPriceHidden && (data.pricing?.minPricePerPerson || data.pricing?.maxPricePerPerson) && (
-                <Box sx={{ mb: 4 }}>
-                    <Card variant="outlined">
-                        <CardContent>
-                            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-                                <Visibility sx={{ mr: 1, fontSize: 20 }} />
-                                Pricing Preview
-                            </Typography>
-                            <Typography variant="body1" color="primary.main" sx={{ fontWeight: 600 }}>
-                                {(() => {
-                                    const min = data.pricing?.minPricePerPerson;
-                                    const max = data.pricing?.maxPricePerPerson;
+            {/* Pricing Section */}
+            <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+                <Typography
+                    variant="h6"
+                    sx={{ mb: 3, display: 'flex', alignItems: 'center' }}
+                >
+                    <AttachMoney sx={{ mr: 1, color: 'primary.main' }} />
+                    Pricing Information
+                </Typography>
 
-                                    if (min && max && min !== max) {
-                                        return `PLN ${min}-${max} / guest`;
-                                    } else if (min && max && min === max) {
-                                        return `PLN ${min} / guest`;
-                                    } else if (min) {
-                                        return `From PLN ${min} / guest`;
-                                    } else if (max) {
-                                        return `Up to PLN ${max} / guest`;
-                                    }
-                                    return 'Price range to be displayed';
-                                })()}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                This is how your pricing will appear to potential clients
-                            </Typography>
-                        </CardContent>
-                    </Card>
+                <Box sx={{ mb: 3 }}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={formData.pricing.isPriceHidden}
+                                onChange={handlePriceHiddenToggle}
+                                color="primary"
+                            />
+                        }
+                        label="Hide pricing (customers will need to contact you for quotes)"
+                        sx={{
+                            '& .MuiFormControlLabel-label': {
+                                fontSize: '0.95rem',
+                                color: 'text.primary'
+                            }
+                        }}
+                    />
                 </Box>
-            )}
+
+                {!formData.pricing.isPriceHidden && (
+                    <Grid container spacing={3}>
+                        <Grid item size={{xs: 12, sm: 6}}>
+                            <FormField
+                                label="Minimum Price Per Person"
+                                placeholder="e.g., 200"
+                                value={formData.pricing.minPricePerPerson}
+                                onChange={handleChange('pricing', true, 'minPricePerPerson')}
+                                type="number"
+                                inputProps={{
+                                    min: 0,
+                                    max: 10000,
+                                    step: 0.01
+                                }}
+                                helperText="Price in PLN per person"
+                                required={!formData.pricing.isPriceHidden}
+                                sx={{ mb: 0 }}
+                            />
+                        </Grid>
+
+                        <Grid item size={{xs: 12, sm: 6}}>
+                            <FormField
+                                label="Maximum Price Per Person (optional)"
+                                placeholder="e.g., 400"
+                                value={formData.pricing.maxPricePerPerson}
+                                onChange={handleChange('pricing', true, 'maxPricePerPerson')}
+                                type="number"
+                                inputProps={{
+                                    min: 0,
+                                    max: 10000,
+                                    step: 0.01
+                                }}
+                                helperText="Leave empty if you have a fixed price"
+                                sx={{ mb: 0 }}
+                            />
+                        </Grid>
+                    </Grid>
+                )}
+
+                {formData.pricing.isPriceHidden && (
+                    <Box
+                        sx={{
+                            p: 2,
+                            bgcolor: 'grey.50',
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'grey.200'
+                        }}
+                    >
+                        <Typography variant="body2" color="text.secondary">
+                            💡 With hidden pricing, potential customers will see "Ask for an offer"
+                            and will need to contact you directly for pricing information.
+                        </Typography>
+                    </Box>
+                )}
+            </Paper>
 
             {/* Error Alert */}
-            {formError && (
+            {error && (
                 <Alert severity="error" sx={{ mb: 3 }}>
-                    {formError}
+                    {error}
                 </Alert>
             )}
 
-            {/* Navigation */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            {/* Navigation Buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
                 <Button
                     variant="outlined"
-                    color="primary"
-                    size="large"
                     onClick={onBack}
                     startIcon={<ArrowBack />}
                     sx={{ px: 4 }}
@@ -307,13 +260,11 @@ export default function PricingCapacityStep({ data, onDataChange, onNext, onBack
                 </Button>
                 <Button
                     variant="contained"
-                    color="primary"
-                    size="large"
                     onClick={handleNext}
                     endIcon={<ArrowForward />}
                     sx={{ px: 4 }}
                 >
-                    Save & Continue
+                    Continue to Images
                 </Button>
             </Box>
         </Box>
