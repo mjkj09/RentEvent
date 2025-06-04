@@ -1,13 +1,17 @@
+// Updated server/routes/review.routes.js
 const router = require('express').Router();
-const ctrl = require('../controllers/review.controller');
+const reviewController = require('../controllers/review.controller');
 const { verifyToken } = require('../middleware/auth.middleware');
+const { validateReview } = require('../middleware/validation.middleware');
 
-router.get('/', ctrl.getAllReviews);
-router.get('/:id', ctrl.getReviewById);
-router.post('/', verifyToken, ctrl.createReview);
+// Public routes
+router.get('/', reviewController.getAllReviews);
+router.get('/:id', reviewController.getReviewById);
+router.get('/venue/:venueId', reviewController.getVenueReviews);
 
-//TODO: Add additional logic to check if user is the author of the review
-router.put('/:id', verifyToken, ctrl.updateReview);
-router.delete('/:id', verifyToken, ctrl.deleteReview);
+// Protected routes
+router.post('/', verifyToken, validateReview, reviewController.createReview);
+router.put('/:id', verifyToken, validateReview, reviewController.updateReview);
+router.delete('/:id', verifyToken, reviewController.deleteReview);
 
 module.exports = router;
