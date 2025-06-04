@@ -3,152 +3,64 @@ import {
     Box,
     Typography,
     Button,
-    Grid,
     Card,
     CardContent,
-    CardActions,
-    Divider
+    Grid,
+    Chip
 } from '@mui/material';
 import {
     Business,
     Person,
-    CheckCircle,
-    Info,
-    TrendingUp
+    ArrowForward,
+    Home
 } from '@mui/icons-material';
 
-export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter, fromCreateListing = false }) {
+export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter, fromCreateListing }) {
     return (
-        <Box>
-            <Grid container spacing={3} justifyContent="center">
-                {/* Upgrade to Owner Option */}
-                <Grid item xs={12} md={6}>
-                    <Card
-                        elevation={2}
+        <Grid container spacing={3}>
+            {/* Upgrade to Owner Option */}
+            <Grid item size={{xs: 12, md: 6}}>
+                <Card
+                    sx={{
+                        height: '100%',
+                        border: '2px solid',
+                        borderColor: 'primary.main',
+                        position: 'relative',
+                        '&:hover': {
+                            boxShadow: 4,
+                            transform: 'translateY(-2px)'
+                        },
+                        transition: 'all 0.2s ease'
+                    }}
+                >
+                    <Chip
+                        label="Recommended"
+                        color="primary"
+                        size="small"
                         sx={{
-                            height: '100%',
-                            border: '2px solid',
-                            borderColor: 'primary.main',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                                boxShadow: 6,
-                                transform: 'translateY(-4px)'
-                            }
+                            position: 'absolute',
+                            top: 16,
+                            right: 16
                         }}
-                    >
-                        <CardContent sx={{ textAlign: 'center', p: 3 }}>
-                            <TrendingUp
+                    />
+
+                    <CardContent sx={{ p: 4 }}>
+                        <Box sx={{ textAlign: 'center', mb: 3 }}>
+                            <Business
                                 sx={{
-                                    fontSize: 64,
+                                    fontSize: 48,
                                     color: 'primary.main',
                                     mb: 2
                                 }}
                             />
                             <Typography
                                 variant="h5"
-                                component="h3"
-                                sx={{ fontWeight: 600, mb: 2 }}
-                            >
-                                {fromCreateListing ? 'Upgrade to List Venues' : 'Upgrade to Venue Owner'}
-                            </Typography>
-                            <Typography
-                                variant="body1"
-                                color="text.secondary"
-                                sx={{ mb: 3 }}
-                            >
-                                Register your company details to unlock venue listing and management features on our platform.
-                            </Typography>
-
-                            <Box sx={{ textAlign: 'left', mb: 2 }}>
-                                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                                    What you'll get:
-                                </Typography>
-                                {[
-                                    'List unlimited venues',
-                                    'Manage bookings and requests',
-                                    'Access to owner dashboard',
-                                    'Revenue tracking tools'
-                                ].map((item, index) => (
-                                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                        <CheckCircle
-                                            sx={{
-                                                fontSize: 16,
-                                                color: 'success.main',
-                                                mr: 1
-                                            }}
-                                        />
-                                        <Typography variant="body2">{item}</Typography>
-                                    </Box>
-                                ))}
-                            </Box>
-
-                            <Box sx={{ textAlign: 'left', mb: 2 }}>
-                                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                                    What you'll need:
-                                </Typography>
-                                {[
-                                    'Company name',
-                                    'NIP number (10 digits)',
-                                    'REGON number (9 or 14 digits)',
-                                    'Business address'
-                                ].map((item, index) => (
-                                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                        <Business
-                                            sx={{
-                                                fontSize: 16,
-                                                color: 'primary.main',
-                                                mr: 1
-                                            }}
-                                        />
-                                        <Typography variant="body2">{item}</Typography>
-                                    </Box>
-                                ))}
-                            </Box>
-                        </CardContent>
-
-                        <CardActions sx={{ p: 3, pt: 0 }}>
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                size="large"
-                                onClick={onProceedToForm}
-                                startIcon={<TrendingUp />}
-                                sx={{ py: 1.5 }}
-                            >
-                                {fromCreateListing ? 'Upgrade & Create Listing' : 'Upgrade to Owner Account'}
-                            </Button>
-                        </CardActions>
-                    </Card>
-                </Grid>
-
-                {/* Stay as Renter Option */}
-                <Grid item xs={12} md={6}>
-                    <Card
-                        elevation={1}
-                        sx={{
-                            height: '100%',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                                boxShadow: 4,
-                                transform: 'translateY(-2px)'
-                            }
-                        }}
-                    >
-                        <CardContent sx={{ textAlign: 'center', p: 3 }}>
-                            <Person
                                 sx={{
-                                    fontSize: 64,
-                                    color: 'secondary.main',
-                                    mb: 2
+                                    fontWeight: 600,
+                                    mb: 1
                                 }}
-                            />
-                            <Typography
-                                variant="h5"
-                                component="h3"
-                                sx={{ fontWeight: 600, mb: 2 }}
                             >
-                                {fromCreateListing ? 'Continue Browsing Venues' : 'Stay as Event Organizer'}
+                                Become a Venue Owner
                             </Typography>
                             <Typography
                                 variant="body1"
@@ -156,72 +68,123 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter,
                                 sx={{ mb: 3 }}
                             >
                                 {fromCreateListing
-                                    ? 'Not ready to list venues yet? You can always come back later and upgrade your account when you\'re ready.'
-                                    : 'Continue with your current account to search and book venues for your events. You can always upgrade later.'
+                                    ? 'Upgrade your account to start listing venues and earning from your space'
+                                    : 'Start listing your venues and connect with event organizers'
                                 }
                             </Typography>
+                        </Box>
 
-                            <Box sx={{ textAlign: 'left', mb: 2 }}>
-                                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                                    Your current features:
+                        <Box sx={{ mb: 4 }}>
+                            <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+                                What you'll get:
+                            </Typography>
+                            <Box component="ul" sx={{ pl: 2, m: 0 }}>
+                                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                                    List unlimited venues
                                 </Typography>
-                                {[
-                                    'Search and filter venues',
-                                    'Save favorite venues',
-                                    'Send booking requests',
-                                    'Manage your events'
-                                ].map((item, index) => (
-                                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                        <CheckCircle
-                                            sx={{
-                                                fontSize: 16,
-                                                color: 'success.main',
-                                                mr: 1
-                                            }}
-                                        />
-                                        <Typography variant="body2">{item}</Typography>
-                                    </Box>
-                                ))}
+                                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                                    Manage bookings and requests
+                                </Typography>
+                                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                                    Analytics and insights
+                                </Typography>
+                                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                                    Professional company profile
+                                </Typography>
                             </Box>
-                        </CardContent>
+                        </Box>
 
-                        <CardActions sx={{ p: 3, pt: 0 }}>
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                color="secondary"
-                                size="large"
-                                onClick={onSwitchToRenter}
-                                startIcon={<Person />}
-                                sx={{ py: 1.5 }}
-                            >
-                                {fromCreateListing ? 'Back to Home' : 'Continue as Event Organizer'}
-                            </Button>
-                        </CardActions>
-                    </Card>
-                </Grid>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            size="large"
+                            onClick={onProceedToForm}
+                            endIcon={<ArrowForward />}
+                            sx={{ py: 1.5 }}
+                        >
+                            Set Up Company Profile
+                        </Button>
+                    </CardContent>
+                </Card>
             </Grid>
 
-            <Divider sx={{ my: 4 }} />
+            {/* Continue as Renter Option */}
+            <Grid item size={{xs: 12, md: 6}}>
+                <Card
+                    sx={{
+                        height: '100%',
+                        border: '1px solid',
+                        borderColor: 'grey.200',
+                        '&:hover': {
+                            boxShadow: 2,
+                            transform: 'translateY(-1px)'
+                        },
+                        transition: 'all 0.2s ease'
+                    }}
+                >
+                    <CardContent sx={{ p: 4 }}>
+                        <Box sx={{ textAlign: 'center', mb: 3 }}>
+                            <Person
+                                sx={{
+                                    fontSize: 48,
+                                    color: 'text.secondary',
+                                    mb: 2
+                                }}
+                            />
+                            <Typography
+                                variant="h5"
+                                sx={{
+                                    fontWeight: 600,
+                                    mb: 1
+                                }}
+                            >
+                                Continue as Event Organizer
+                            </Typography>
+                            <Typography
+                                variant="body1"
+                                color="text.secondary"
+                                sx={{ mb: 3 }}
+                            >
+                                {fromCreateListing
+                                    ? 'Browse and book venues for your events (you can upgrade later)'
+                                    : 'Browse and book venues for your events'
+                                }
+                            </Typography>
+                        </Box>
 
-            {/* Info Section */}
-            <Box
-                sx={{
-                    textAlign: 'center',
-                    p: 3,
-                    backgroundColor: 'grey.50',
-                    borderRadius: 2
-                }}
-            >
-                <Info sx={{ color: 'info.main', fontSize: 32, mb: 1 }} />
-                <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-                    No Pressure!
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    You can always upgrade to venue owner later from your profile settings.
-                    Start exploring venues now and upgrade when you're ready to list your own!
-                </Typography>
-            </Box>
-        </Box>
+                        <Box sx={{ mb: 4 }}>
+                            <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+                                What you can do:
+                            </Typography>
+                            <Box component="ul" sx={{ pl: 2, m: 0 }}>
+                                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                                    Search and filter venues
+                                </Typography>
+                                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                                    Save favorite venues
+                                </Typography>
+                                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                                    Send booking requests
+                                </Typography>
+                                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                                    Manage your event planning
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Button
+                            variant="outlined"
+                            fullWidth
+                            size="large"
+                            onClick={onSwitchToRenter}
+                            endIcon={<Home />}
+                            sx={{ py: 1.5 }}
+                        >
+                            {fromCreateListing ? 'Browse Venues Instead' : 'Continue to Platform'}
+                        </Button>
+                    </CardContent>
+                </Card>
+            </Grid>
+        </Grid>
     );
 }
