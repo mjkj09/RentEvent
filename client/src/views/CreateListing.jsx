@@ -44,7 +44,7 @@ export default function CreateListing() {
     const { user, isAuthenticated, loading: authLoading } = useAuth();
 
     useEffect(() => {
-        const checkAccess = async () => {
+       const checkAccess = async () => {
             if (!authLoading) {
                 if (!isAuthenticated) {
                     navigate('/auth');
@@ -76,7 +76,6 @@ export default function CreateListing() {
                             return;
                         }
                     } catch (error) {
-                        console.error('Error checking company status:', error);
                         navigate('/company-setup', {
                             state: {
                                 fromCreateListing: true,
@@ -86,7 +85,6 @@ export default function CreateListing() {
                         return;
                     }
                 }
-
                 setLoading(false);
             }
         };
@@ -132,7 +130,8 @@ export default function CreateListing() {
                     maxPricePerPerson: venueData.pricing.maxPricePerPerson ? parseFloat(venueData.pricing.maxPricePerPerson) : null,
                     isPriceHidden: venueData.pricing.isPriceHidden
                 },
-                images: venueData.images
+                images: venueData.images,
+                bannerImage: venueData.bannerImage
             };
 
             const result = await venueService.createVenue(submitData);
@@ -140,12 +139,33 @@ export default function CreateListing() {
             // Redirect to venue details page
             navigate(`/venue/${result.venue._id}`);
         } catch (error) {
-            console.error('Error creating venue:', error);
             // Error handling will be done in the ImagesStep component
         } finally {
             setIsSubmitting(false);
         }
     };
+
+    // Add event listener to detect navigation attempts
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            if (isSubmitting) {
+                event.preventDefault();
+                event.returnValue = '';
+            }
+        };
+
+        const handlePopState = (event) => {
+            console.log('🔙 Browser back button pressed');
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [isSubmitting]);
 
     if (authLoading || loading) {
         return <PageLoader message="Loading create listing..." />;
