@@ -10,10 +10,6 @@ export const AuthProvider = ({children}) => {
     useEffect(() => {
         const loadUser = async () => {
             try {
-                if (window.location.pathname.includes('/auth')) {
-                    setLoading(false);
-                    return;
-                }
                 const userData = await authService.getCurrentUser();
                 setUser(userData);
             } catch (err) {
@@ -78,6 +74,7 @@ export const AuthProvider = ({children}) => {
                 register,
                 login,
                 logout,
+                setUser, // Dodajemy setUser do context
                 isAuthenticated: !!user
             }}
         >

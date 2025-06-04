@@ -10,9 +10,6 @@ export default function HeroBanner() {
         navigate('/auth');
     };
 
-    const handleLogin = () => {
-        navigate('/auth');
-    };
 
     return (
         <Paper elevation={8} sx={{p: 4, mb: 4, textAlign: 'center', borderRadius: 8, backgroundColor: 'primary.main'}}>
@@ -23,12 +20,9 @@ export default function HeroBanner() {
                 Your comprehensive assistant for organizing events.
             </Typography>
 
-            <Box sx={{display: 'flex', gap: 2, justifyContent: 'center', mt: 3}}>
+            <Box sx={{display: 'flex', justifyContent: 'center', mt: 3}}>
                 <Button variant="contained" color="secondary" size="large" onClick={handleGetStarted}>
                     GET STARTED
-                </Button>
-                <Button variant="outlined" color="secondary" size="large" onClick={handleLogin}>
-                    LOG IN
                 </Button>
             </Box>
         </Paper>

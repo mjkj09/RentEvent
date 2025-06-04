@@ -1,5 +1,6 @@
 const authService = require('../services/auth.service');
 const AppError = require('../utils/AppError');
+const userRepo = require('../repositories/user.repository');
 
 exports.register = async (req, res, next) => {
     try {
@@ -58,12 +59,23 @@ exports.refreshToken = async (req, res, next) => {
     }
 };
 
-exports.getMe = async (req, res) => {
-    res.status(200).json({
-        data: {
-            id: req.user.id,
-            email: req.user.email,
-            role: req.user.role
+exports.getMe = async (req, res, next) => {
+    try {
+        const user = await userRepo.findById(req.user.id);
+        if (!user) {
+            return next(new AppError('User not found', 404));
         }
-    });
+
+        res.status(200).json({
+            data: {
+                id: user._id,
+                name: user.name,
+                surname: user.surname,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
 };

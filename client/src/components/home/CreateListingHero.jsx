@@ -8,18 +8,53 @@ import {
 import {Business} from '@mui/icons-material';
 import {useNavigate} from 'react-router-dom';
 import {useAuth} from '../../hooks/useAuth';
+import companyService from '../../services/company.service';
 
 export default function CreateListingHero() {
     const navigate = useNavigate();
-    const {user} = useAuth();
+    const {user, isAuthenticated} = useAuth();
 
-    const handleCreateListing = () => {
-        // Check if user is an owner
-        if (user?.role === 'owner') {
-            navigate('/venues/create');
-        } else {
-            // Redirect to auth with a message or show a modal
-            navigate('/auth?message=owner-only');
+    const handleCreateListing = async () => {
+        if (!isAuthenticated) {
+            navigate('/auth');
+            return;
+        }
+
+        if (user.role === 'renter') {
+            // Renter wants to create a listing → redirect to company setup
+            navigate('/company-setup', {
+                state: {
+                    fromCreateListing: true,
+                    returnTo: '/create-listing'
+                }
+            });
+            return;
+        }
+
+        if (user.role === 'owner') {
+            try {
+                const hasCompany = await companyService.checkCompanyExists();
+                if (!hasCompany) {
+                    // Owner without a company → redirect to company setup
+                    navigate('/company-setup', {
+                        state: {
+                            fromCreateListing: true,
+                            returnTo: '/create-listing'
+                        }
+                    });
+                    return;
+                }
+                // Owner with a company → go straight to listing creation
+                navigate('/create-listing');
+            } catch (error) {
+                console.error('Error checking company status:', error);
+                navigate('/company-setup', {
+                    state: {
+                        fromCreateListing: true,
+                        returnTo: '/create-listing'
+                    }
+                });
+            }
         }
     };
 

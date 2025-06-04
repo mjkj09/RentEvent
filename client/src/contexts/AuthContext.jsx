@@ -10,5 +10,6 @@ export const AuthContext = createContext({
     },
     logout: async () => {
     },
+    setUser: () => {}, // Dodajemy setUser do default context
     isAuthenticated: false
 });
