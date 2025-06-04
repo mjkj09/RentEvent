@@ -86,6 +86,10 @@ const VenueSchema = new mongoose.Schema({
     images: [{
         type: String
     }],
+    bannerImage: {
+        type: String,
+        default: null
+    },
     rating: {
         type: Number,
         default: 0,
@@ -120,6 +124,11 @@ VenueSchema.pre('save', function(next) {
         if (this.pricing.maxPricePerPerson < this.pricing.minPricePerPerson) {
             next(new Error('Maximum price cannot be less than minimum price'));
         }
+    }
+
+    // Auto-set bannerImage to first image if not set
+    if (this.images.length > 0 && !this.bannerImage) {
+        this.bannerImage = this.images[0];
     }
 
     next();
