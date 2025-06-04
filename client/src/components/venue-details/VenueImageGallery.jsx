@@ -46,6 +46,9 @@ export default function VenueImageGallery({ images = [], bannerImage, venueName 
         return result;
     }, [bannerImage, images]);
 
+    // Thumbnail images (exclude the main banner)
+    const thumbnailImages = allImages.slice(1);
+
     const handleImageClick = (index) => {
         setSelectedImage(index);
         setIsDialogOpen(true);
@@ -130,17 +133,17 @@ export default function VenueImageGallery({ images = [], bannerImage, venueName 
                                     position: 'absolute',
                                     bottom: 16,
                                     right: 16,
-                                    backgroundColor: 'rgba(139, 69, 139, 0.9)',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
                                     color: 'white',
                                     fontWeight: 600,
                                     px: 3,
                                     py: 1,
                                     '&:hover': {
-                                        backgroundColor: 'rgba(139, 69, 139, 1)'
+                                        backgroundColor: 'rgba(0, 0, 0, 0.9)'
                                     }
                                 }}
                             >
-                                Zobacz zdjęcia ({allImages.length})
+                                View Photos ({allImages.length})
                             </Button>
                         )}
 
@@ -163,8 +166,8 @@ export default function VenueImageGallery({ images = [], bannerImage, venueName 
                     </Paper>
                 </Box>
 
-                {/* Thumbnail Row - Only show if more than 1 image */}
-                {allImages.length > 1 && (
+                {/* Thumbnail Row - Only show thumbnails (without main banner) */}
+                {thumbnailImages.length > 0 && (
                     <Box sx={{
                         display: 'flex',
                         gap: 1,
@@ -182,29 +185,41 @@ export default function VenueImageGallery({ images = [], bannerImage, venueName 
                             borderRadius: 3
                         }
                     }}>
-                        {allImages.map((image, index) => (
+                        {thumbnailImages.map((image, index) => (
                             <Box
                                 key={index}
                                 sx={{
-                                    minWidth: { xs: 80, sm: 100, md: 120 },
-                                    height: { xs: 60, sm: 75, md: 90 },
+                                    width: 120, // Fixed width
+                                    height: 90,  // Fixed height
+                                    flexShrink: 0, // Prevent shrinking
                                     cursor: 'pointer',
-                                    border: index === 0 ? '2px solid' : '2px solid transparent',
-                                    borderColor: index === 0 ? 'primary.main' : 'transparent',
+                                    border: '2px solid transparent',
                                     borderRadius: 2,
                                     overflow: 'hidden',
+                                    position: 'relative',
                                     '&:hover': {
-                                        borderColor: 'primary.main',
-                                        transform: 'scale(1.05)',
+                                        '&::before': {
+                                            content: '""',
+                                            position: 'absolute',
+                                            top: -2,
+                                            left: -2,
+                                            right: -2,
+                                            bottom: -2,
+                                            border: '2px solid',
+                                            borderColor: 'primary.main',
+                                            borderRadius: 2,
+                                            zIndex: 1
+                                        },
+                                        transform: 'scale(1.02)',
                                         transition: 'all 0.2s ease'
                                     }
                                 }}
-                                onClick={() => handleImageClick(index)}
+                                onClick={() => handleImageClick(index + 1)} // +1 because we skip banner
                             >
                                 <Box
                                     component="img"
                                     src={image}
-                                    alt={`${venueName} - Thumbnail ${index + 1}`}
+                                    alt={`${venueName} - Thumbnail ${index + 2}`}
                                     sx={{
                                         width: '100%',
                                         height: '100%',

@@ -2,12 +2,9 @@ import React, { useState, useEffect } from 'react';
 import {
     Box,
     Container,
-    Grid,
     Typography,
     Chip,
     Button,
-    Paper,
-    Divider,
     Alert,
     Fade,
     IconButton,
@@ -32,9 +29,7 @@ import NavBar from '../components/common/NavBar';
 import Footer from '../components/common/Footer';
 import PageLoader from '../components/common/PageLoader';
 import VenueImageGallery from '../components/venue-details/VenueImageGallery';
-import VenuePricing from '../components/venue-details/VenuePricing';
 import VenueInfo from '../components/venue-details/VenueInfo';
-import VenueOwnerCard from '../components/venue-details/VenueOwnerCard';
 import VenueReviews from '../components/venue-details/VenueReviews';
 import ContactForm from '../components/venue-details/ContactForm';
 
@@ -223,7 +218,7 @@ export default function VenueDetails() {
                                         {venue.name}
                                     </Typography>
 
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap' }}>
                                         <Chip
                                             label={venue.category}
                                             color="primary"
@@ -243,16 +238,17 @@ export default function VenueDetails() {
                                                 Up to {venue.capacity} guests
                                             </Typography>
                                         </Box>
-                                    </Box>
 
-                                    {venue.ratingStats.totalReviews > 0 && (
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <Star color="warning" fontSize="small" />
-                                            <Typography variant="body2">
-                                                {venue.ratingStats.averageRating} ({venue.ratingStats.totalReviews} reviews)
-                                            </Typography>
-                                        </Box>
-                                    )}
+                                        {/* Rating moved here */}
+                                        {venue.ratingStats.totalReviews > 0 && (
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                <Star color="warning" fontSize="small" />
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {venue.ratingStats.averageRating} ({venue.ratingStats.totalReviews} reviews)
+                                                </Typography>
+                                            </Box>
+                                        )}
+                                    </Box>
                                 </Box>
 
                                 <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
@@ -275,50 +271,26 @@ export default function VenueDetails() {
                             </Box>
                         </Box>
 
-                        {/* Main Content Grid */}
-                        <Grid container spacing={4}>
-                            {/* Left Column - Images and Info */}
-                            <Grid item xs={12} md={8}>
-                                {/* Image Gallery */}
-                                <VenueImageGallery
-                                    images={venue.images}
-                                    bannerImage={venue.bannerImage}
-                                    venueName={venue.name}
-                                />
+                        {/* Image Gallery */}
+                        <VenueImageGallery
+                            images={venue.images}
+                            bannerImage={venue.bannerImage}
+                            venueName={venue.name}
+                        />
 
-                                {/* Venue Description and Details */}
-                                <VenueInfo venue={venue} />
+                        {/* Venue Information (now includes pricing and owner) */}
+                        <VenueInfo venue={venue} onContactOwner={handleContactOwner} />
 
-                                {/* Reviews Section */}
-                                <VenueReviews
-                                    reviews={venue.reviews}
-                                    ratingStats={venue.ratingStats}
-                                    venueId={venue._id}
-                                />
-                            </Grid>
-
-                            {/* Right Column - Pricing and Owner */}
-                            <Grid item xs={12} md={4}>
-                                {/* Pricing Card */}
-                                <VenuePricing
-                                    pricing={venue.pricing}
-                                    capacity={venue.capacity}
-                                    onContactOwner={handleContactOwner}
-                                />
-
-                                {/* Owner Card */}
-                                <VenueOwnerCard
-                                    owner={venue.owner}
-                                    ownerCompany={venue.ownerCompany}
-                                    onContactOwner={handleContactOwner}
-                                />
-                            </Grid>
-                        </Grid>
+                        {/* Reviews Section - moved to bottom */}
+                        <VenueReviews
+                            reviews={venue.reviews}
+                            ratingStats={venue.ratingStats}
+                            venueId={venue._id}
+                        />
 
                         {/* Contact Form (conditionally rendered) */}
                         {showContactForm && (
                             <Box id="contact-form" sx={{ mt: 6 }}>
-                                <Divider sx={{ mb: 4 }} />
                                 <ContactForm
                                     venue={venue}
                                     onClose={() => setShowContactForm(false)}
