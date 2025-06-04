@@ -1,9 +1,7 @@
+const AppError = require('./AppError');
+
 /**
- * Standardized success response utility - compatible with existing structure
- * @param {Object} res - Express response object
- * @param {string} message - Success message
- * @param {Object} data - Response data (optional)
- * @param {number} statusCode - HTTP status code (default: 200)
+ * Standardized success response utility
  */
 const successResponse = (res, message, data = null, statusCode = 200) => {
     const response = {
@@ -19,32 +17,16 @@ const successResponse = (res, message, data = null, statusCode = 200) => {
 };
 
 /**
- * Standardized error response utility - compatible with existing AppError
- * @param {Object} res - Express response object
- * @param {Object|Error} error - Error object or custom error
+ * Standardized error response utility - uses your existing AppError
  */
 const errorResponse = (res, error) => {
     let statusCode = 500;
     let message = 'Internal server error';
 
-    // Handle AppError (your existing error class)
-    if (error.statusCode) {
+    // Handle your existing AppError
+    if (error instanceof AppError || error.statusCode) {
         statusCode = error.statusCode;
         message = error.message;
-    }
-    // Handle standard Error objects
-    else if (error instanceof Error) {
-        message = error.message;
-        // Try to extract status code from common error patterns
-        if (error.message.includes('not found') || error.message.includes('Not found')) {
-            statusCode = 404;
-        } else if (error.message.includes('already exists') || error.message.includes('duplicate')) {
-            statusCode = 400;
-        } else if (error.message.includes('unauthorized') || error.message.includes('Unauthorized')) {
-            statusCode = 401;
-        } else if (error.message.includes('forbidden') || error.message.includes('Forbidden')) {
-            statusCode = 403;
-        }
     }
     // Handle mongoose validation errors
     else if (error.name === 'ValidationError') {
@@ -62,8 +44,12 @@ const errorResponse = (res, error) => {
         statusCode = 400;
         message = 'Invalid ID format';
     }
+    // Handle standard Error objects
+    else if (error instanceof Error) {
+        message = error.message;
+    }
 
-    // Use your existing error structure
+    // Use your existing error response structure
     const response = {
         success: false,
         error: {
@@ -71,9 +57,9 @@ const errorResponse = (res, error) => {
         }
     };
 
-    // Add stack trace in development (compatible with your existing structure)
+    // Add stack trace in development
     if (process.env.NODE_ENV === 'development' && error.stack) {
-        response.error.stack = error.stack;
+        console.error(error.stack);
     }
 
     return res.status(statusCode).json(response);
