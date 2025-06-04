@@ -25,6 +25,17 @@ const venueService = {
         }
     },
 
+    getVenueDetails: async (id) => {
+        try {
+            return await venueApi.getVenueDetails(id);
+        } catch (error) {
+            const errorMessage = error.response?.data?.error?.message ||
+                error.response?.data?.message ||
+                'Failed to fetch venue details.';
+            throw new Error(errorMessage);
+        }
+    },
+
     createVenue: async (venueData) => {
         try {
             const response = await venueApi.createVenue(venueData);
