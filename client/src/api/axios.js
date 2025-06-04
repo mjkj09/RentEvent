@@ -15,6 +15,11 @@ axiosInstance.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        // Don't try to refresh token for login/register requests
+        if (originalRequest.url === '/auth/login' || originalRequest.url === '/auth/register') {
+            return Promise.reject(error);
+        }
+
         if (error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
@@ -22,7 +27,8 @@ axiosInstance.interceptors.response.use(
                 await axios.post(`${API_URL}/auth/refresh-token`, {}, {withCredentials: true});
                 return axiosInstance(originalRequest);
             } catch (refreshError) {
-                if (!window.location.pathname.includes('/auth')) {
+                // Don't redirect if on landing page or auth page
+                if (!window.location.pathname.includes('/auth') && window.location.pathname !== '/') {
                     window.location.href = '/auth';
                 }
                 return Promise.reject(refreshError);
