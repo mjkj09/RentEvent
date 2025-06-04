@@ -17,7 +17,7 @@ import {
     TrendingUp
 } from '@mui/icons-material';
 
-export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter }) {
+export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter, fromCreateListing = false }) {
     return (
         <Box>
             <Grid container spacing={3} justifyContent="center">
@@ -49,7 +49,7 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                                 component="h3"
                                 sx={{ fontWeight: 600, mb: 2 }}
                             >
-                                Upgrade to Venue Owner
+                                {fromCreateListing ? 'Upgrade to List Venues' : 'Upgrade to Venue Owner'}
                             </Typography>
                             <Typography
                                 variant="body1"
@@ -116,7 +116,7 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                                 startIcon={<TrendingUp />}
                                 sx={{ py: 1.5 }}
                             >
-                                Upgrade to Owner Account
+                                {fromCreateListing ? 'Upgrade & Create Listing' : 'Upgrade to Owner Account'}
                             </Button>
                         </CardActions>
                     </Card>
@@ -148,14 +148,17 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                                 component="h3"
                                 sx={{ fontWeight: 600, mb: 2 }}
                             >
-                                Stay as Renter
+                                {fromCreateListing ? 'Continue Browsing Venues' : 'Stay as Event Organizer'}
                             </Typography>
                             <Typography
                                 variant="body1"
                                 color="text.secondary"
                                 sx={{ mb: 3 }}
                             >
-                                Continue with your current account to search and book venues for your events. You can always upgrade later.
+                                {fromCreateListing
+                                    ? 'Not ready to list venues yet? You can always come back later and upgrade your account when you\'re ready.'
+                                    : 'Continue with your current account to search and book venues for your events. You can always upgrade later.'
+                                }
                             </Typography>
 
                             <Box sx={{ textAlign: 'left', mb: 2 }}>
@@ -166,7 +169,7 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                                     'Search and filter venues',
                                     'Save favorite venues',
                                     'Send booking requests',
-                                    'Make reviews and ratings'
+                                    'Manage your events'
                                 ].map((item, index) => (
                                     <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
                                         <CheckCircle
@@ -192,7 +195,7 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                                 startIcon={<Person />}
                                 sx={{ py: 1.5 }}
                             >
-                                Stay as Renter
+                                {fromCreateListing ? 'Back to Home' : 'Continue as Event Organizer'}
                             </Button>
                         </CardActions>
                     </Card>

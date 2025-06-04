@@ -17,8 +17,10 @@ export default function CompanySetup() {
     const location = useLocation();
     const { user, isAuthenticated, loading: authLoading } = useAuth();
 
-    // Check if user came from registration
+    // Check if user came from registration or create listing
     const fromRegistration = location.state?.fromRegistration || false;
+    const fromCreateListing = location.state?.fromCreateListing || false;
+    const returnTo = location.state?.returnTo;
 
     useEffect(() => {
         const checkCompanyStatus = async () => {
@@ -59,7 +61,11 @@ export default function CompanySetup() {
     };
 
     const handleCompanyCreated = () => {
-        navigate('/home');
+        if (fromCreateListing && returnTo) {
+            navigate(returnTo);
+        } else {
+            navigate('/home');
+        }
     };
 
     const handleBackToOptions = () => {
@@ -108,7 +114,9 @@ export default function CompanySetup() {
                                     fontSize: { xs: '2rem', md: '3rem' }
                                 }}
                             >
-                                {fromRegistration ? 'Welcome to RentEvent!' : 'Account Upgrade'}
+                                {fromRegistration ? 'Welcome to RentEvent!' :
+                                    fromCreateListing ? 'Create Your First Listing' :
+                                        'Account Upgrade'}
                             </Typography>
                             <Typography
                                 variant="h6"
@@ -122,7 +130,9 @@ export default function CompanySetup() {
                                 {step === 'options'
                                     ? (fromRegistration
                                             ? 'Would you like to upgrade your account to start listing venues, or continue as an event organizer?'
-                                            : 'Choose how you want to use your RentEvent account.'
+                                            : fromCreateListing
+                                                ? 'To create venue listings, you need to upgrade your account. Would you like to provide your company details or continue browsing as an event organizer?'
+                                                : 'Choose how you want to use your RentEvent account.'
                                     )
                                     : 'Please provide your company details to upgrade to venue owner.'
                                 }
@@ -134,6 +144,7 @@ export default function CompanySetup() {
                             <CompanySetupOptions
                                 onProceedToForm={handleProceedToForm}
                                 onSwitchToRenter={handleStayAsRenter}
+                                fromCreateListing={fromCreateListing}
                             />
                         ) : (
                             <CompanySetupForm
