@@ -8,7 +8,6 @@ import {
     CircularProgress,
     MenuItem,
     FormControl,
-    InputLabel,
     Select,
     IconButton
 } from '@mui/material';
@@ -20,6 +19,8 @@ import {
 } from '@mui/icons-material';
 import FormField from '../common/FormField';
 import companyService from '../../services/company.service';
+import authService from '../../services/auth.service';
+import { useAuth } from '../../hooks/useAuth';
 
 const regions = [
     'Malopolska',
@@ -40,6 +41,7 @@ const regions = [
 ];
 
 export default function CompanySetupForm({ onCompanyCreated, onBack }) {
+    const { user, setUser } = useAuth(); // Dodajemy setUser z context
     const [formData, setFormData] = useState({
         name: '',
         nip: '',
@@ -120,6 +122,17 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
 
         try {
             await companyService.createCompany(formData);
+
+            // Odśwież dane użytkownika z serwera aby mieć zaktualizowaną rolę
+            try {
+                const updatedUser = await authService.getCurrentUser();
+                if (updatedUser && setUser) {
+                    setUser(updatedUser);
+                }
+            } catch (error) {
+                console.error('Error refreshing user data:', error);
+            }
+
             onCompanyCreated();
         } catch (error) {
             setFormError(error.message);
@@ -154,10 +167,10 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item size={{xs: 12, sm: 4}}>
+                    <Grid item size={{xs: 12}}>
                         <FormField
                             label="Company Name"
-                            placeholder="RentEvent"
+                            placeholder="Enter your company name"
                             value={formData.name}
                             onChange={handleChange('name')}
                             required
@@ -165,7 +178,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                         />
                     </Grid>
 
-                    <Grid item size={{xs: 12, sm: 4}}>
+                    <Grid item size={{xs: 12, sm: 6}}>
                         <FormField
                             label="NIP"
                             placeholder="1234567890"
@@ -182,7 +195,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                         />
                     </Grid>
 
-                    <Grid item size={{xs: 12, sm: 4}}>
+                    <Grid item size={{xs: 12, sm: 6}}>
                         <FormField
                             label="REGON"
                             placeholder="123456789"
@@ -212,7 +225,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item size={{xs: 12, sm: 4}}>
+                    <Grid item size={{xs: 12}}>
                         <FormField
                             label="Street Address"
                             placeholder="ul. Przykładowa 123"
@@ -223,7 +236,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                         />
                     </Grid>
 
-                    <Grid item size={{xs: 12, sm: 4}}>
+                    <Grid item size={{xs: 12, sm: 6}}>
                         <FormField
                             label="City"
                             placeholder="Krakow"
@@ -234,19 +247,23 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                         />
                     </Grid>
 
-                    <Grid item size={{xs: 12, sm: 4}}>
+                    <Grid item size={{xs: 12, sm: 6}}>
                         <Typography
                             variant="body2"
                             sx={{ mb: 1, fontWeight: 500, color: 'text.primary' }}
                         >
-                            Region
+                            Region *
                         </Typography>
                         <FormControl fullWidth required>
                             <Select
                                 variant="outlined"
                                 value={formData.address.region}
                                 onChange={handleChange('region', true)}
+                                displayEmpty
                             >
+                                <MenuItem value="" disabled>
+                                    Select region
+                                </MenuItem>
                                 {regions.map((region) => (
                                     <MenuItem key={region} value={region}>
                                         {region}
