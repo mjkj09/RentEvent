@@ -7,12 +7,12 @@ exports.findAll = ({ page = 1, limit = 10, ...f }) =>
         .exec();
 
 exports.findById = (id) =>
-    Venue.findById(id).populate('owner', 'name surname').exec();
+    Venue.findById(id).populate('owner', 'name surname phone').exec();
 
-// New method for detailed venue view with owner info
+// New method for detailed venue view with owner info - FIXED: added phone field
 exports.findByIdWithOwner = (id) =>
     Venue.findById(id)
-        .populate('owner', 'name surname email role')
+        .populate('owner', 'name surname email role phone')  // Added phone here
         .populate('company', 'name contactEmail contactPhone website')
         .exec();
 
