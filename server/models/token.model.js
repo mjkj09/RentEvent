@@ -8,7 +8,26 @@ const TokenSchema = new mongoose.Schema({
     },
     token: {
         type: String,
-        required: true
+        required: true,
+        unique: true
+    },
+    type: {
+        type: String,
+        enum: ['refresh', 'email_verification', 'password_reset'],
+        default: 'refresh'
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    deviceInfo: {
+        userAgent: String,
+        ip: String,
+        device: String
+    },
+    lastUsed: {
+        type: Date,
+        default: Date.now
     },
     createdAt: {
         type: Date,

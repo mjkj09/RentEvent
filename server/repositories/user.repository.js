@@ -26,3 +26,18 @@ exports.addFavorite = (id, venueId) =>
 
 exports.removeFavorite = (id, venueId) =>
     User.findByIdAndUpdate(id, { $pull: { favorites: venueId } }, { new: true }).exec();
+
+exports.updateById = (id, updateData) =>
+    User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).exec();
+
+exports.create = (userData) =>
+    new User(userData).save();
+
+exports.deleteById = (id) =>
+    User.findByIdAndDelete(id).exec();
+
+exports.updateRefreshToken = (id, refreshToken) =>
+    User.findByIdAndUpdate(id, { refreshToken }, { new: true }).exec();
+
+exports.clearRefreshToken = (id) =>
+    User.findByIdAndUpdate(id, { $unset: { refreshToken: 1 } }, { new: true }).exec();
