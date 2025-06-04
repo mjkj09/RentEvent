@@ -13,7 +13,6 @@ const CompanySchema = new mongoose.Schema({
         trim: true,
         validate: {
             validator: function(v) {
-                // Basic NIP validation (10 digits)
                 return /^\d{10}$/.test(v);
             },
             message: 'NIP must be exactly 10 digits'
@@ -25,7 +24,6 @@ const CompanySchema = new mongoose.Schema({
         trim: true,
         validate: {
             validator: function(v) {
-                // REGON can be 9 or 14 digits
                 return /^\d{9}$|^\d{14}$/.test(v);
             },
             message: 'REGON must be 9 or 14 digits'
@@ -68,11 +66,7 @@ const CompanySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
-        unique: true // One company per user
-    },
-    isVerified: {
-        type: Boolean,
-        default: false
+        unique: true
     },
     createdAt: {
         type: Date,
