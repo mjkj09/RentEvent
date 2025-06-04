@@ -6,6 +6,7 @@ import Landing from './views/Landing';
 import Auth from './views/Auth';
 import Home from './views/Home';
 import Search from './views/Search';
+import CompanySetup from './views/CompanySetup';
 import PageLoader from './components/common/PageLoader';
 import {AuthProvider} from './contexts/AuthProvider';
 import {useAuth} from './hooks/useAuth';
@@ -36,6 +37,11 @@ function App() {
                     <Route path="/search" element={
                         <ProtectedRoute>
                             <Search/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/company-setup" element={
+                        <ProtectedRoute>
+                            <CompanySetup/>
                         </ProtectedRoute>
                     }/>
                     <Route path="/requests" element={

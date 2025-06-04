@@ -5,17 +5,35 @@ import { useNavigate } from 'react-router-dom';
 import AuthCard from '../components/auth/AuthCard';
 import AuthSidebar from '../components/auth/AuthSidebar';
 import { useAuth } from '../hooks/useAuth';
+import companyService from '../services/company.service';
 
 export default function Auth() {
     const [isLogin, setIsLogin] = useState(true);
     const navigate = useNavigate();
-    const { isAuthenticated, loading } = useAuth();
+    const { isAuthenticated, loading, user } = useAuth();
 
     useEffect(() => {
-        if (isAuthenticated && !loading) {
-            navigate('/home');
-        }
-    }, [isAuthenticated, loading, navigate]);
+        const handleAuthSuccess = async () => {
+            if (isAuthenticated && !loading && user) {
+                // If user is owner, check if they need company setup
+                if (user.role === 'owner') {
+                    try {
+                        const hasCompany = await companyService.checkCompanyExists();
+                        if (!hasCompany) {
+                            navigate('/company-setup');
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error checking company status:', error);
+                    }
+                }
+                // For all other cases, go to home
+                navigate('/home');
+            }
+        };
+
+        handleAuthSuccess();
+    }, [isAuthenticated, loading, user, navigate]);
 
     const toggleMode = () => {
         setIsLogin(!isLogin);

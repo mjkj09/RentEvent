@@ -1,4 +1,5 @@
 import authApi from '../api/auth.api';
+import companyService from './company.service';
 
 const authService = {
 
@@ -58,6 +59,21 @@ const authService = {
       const user = await authService.getCurrentUser();
       return !!user;
     } catch (error) {
+      return false;
+    }
+  },
+
+  // Check if user needs company setup
+  needsCompanySetup: async (user) => {
+    try {
+      if (!user || user.role !== 'owner') {
+        return false;
+      }
+
+      const hasCompany = await companyService.checkCompanyExists();
+      return !hasCompany;
+    } catch (error) {
+      console.error('Error checking company setup need:', error);
       return false;
     }
   }
