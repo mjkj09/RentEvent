@@ -19,6 +19,16 @@ exports.getVenueById = async (req, res, next) => {
     }
 };
 
+// New method for detailed venue view
+exports.getVenueDetails = async (req, res, next) => {
+    try {
+        const venue = await venueService.getVenueByIdWithDetails(req.params.id);
+        return successResponse(res, 'Venue details retrieved successfully', venue);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
 exports.createVenue = async (req, res, next) => {
     try {
         const ownerId = req.user.id;

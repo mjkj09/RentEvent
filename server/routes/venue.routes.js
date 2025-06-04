@@ -5,6 +5,7 @@ const { uploadSingle } = require('../middleware/multer.middleware');
 
 router.get('/', ctrl.getAllVenues);
 router.get('/:id', ctrl.getVenueById);
+router.get('/:id/details', ctrl.getVenueDetails);
 
 // Protected routes
 router.post('/', verifyToken, hasRole(['owner']), ctrl.createVenue);
