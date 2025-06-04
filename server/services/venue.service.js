@@ -71,7 +71,9 @@ exports.createVenue = async (data) => {
     const venueData = {
         ...data,
         company: company._id,
-        isActive: true
+        isActive: true,
+        rating: 0,    // Initialize with 0
+        reviews: 0    // Initialize with 0
     };
 
     return await venueRepo.insert(venueData);
@@ -92,9 +94,10 @@ exports.deleteVenue = async (id) => {
     }
 };
 
+// Fixed: use venueRepo instead of venueRepository
 exports.updateVenueRating = async (venueId, rating, reviewCount) => {
     try {
-        const venue = await venueRepository.updateById(venueId, {
+        const venue = await venueRepo.updateById(venueId, {
             rating: rating,
             reviews: reviewCount,
             updatedAt: new Date()
