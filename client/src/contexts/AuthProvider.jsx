@@ -74,6 +74,7 @@ export const AuthProvider = ({children}) => {
                 register,
                 login,
                 logout,
+                setUser, // Dodajemy setUser do context
                 isAuthenticated: !!user
             }}
         >
