@@ -1,36 +1,5 @@
 const venueService = require('../services/venue.service');
 const { successResponse, errorResponse } = require('../utils/response.utils');
-const multer = require('multer');
-const path = require('path');
-
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads/venues/');
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'venue-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB limit
-    },
-    fileFilter: function (req, file, cb) {
-        const allowedTypes = /jpeg|jpg|png|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb(new Error('Only image files are allowed (jpeg, jpg, png, webp)'));
-        }
-    }
-});
 
 exports.getAllVenues = async (req, res, next) => {
     try {
@@ -83,18 +52,20 @@ exports.deleteVenue = async (req, res, next) => {
     }
 };
 
+// Image upload handler
 exports.uploadImage = async (req, res, next) => {
-    upload.single('image')(req, res, function (err) {
-        if (err) {
-            return errorResponse(res, { message: err.message, statusCode: 400 });
-        }
-
+    try {
         if (!req.file) {
             return errorResponse(res, { message: 'No image file provided', statusCode: 400 });
         }
 
-        // Return the file path relative to public folder
+        // Return full URL for the uploaded image
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
         const imagePath = `/uploads/venues/${req.file.filename}`;
-        return successResponse(res, 'Image uploaded successfully', imagePath);
-    });
+        const fullImageUrl = `${baseUrl}${imagePath}`;
+
+        return successResponse(res, 'Image uploaded successfully', { imageUrl: fullImageUrl });
+    } catch (error) {
+        return errorResponse(res, error);
+    }
 };
