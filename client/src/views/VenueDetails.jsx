@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import {
     LocationOn,
-    People,
     Star,
     Share,
     Favorite,
@@ -35,12 +34,14 @@ import ContactForm from '../components/venue-details/ContactForm';
 
 // Services
 import venueService from '../services/venue.service';
+import reviewService from '../services/review.service';
 
 export default function VenueDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
 
     const [venue, setVenue] = useState(null);
+    const [venueDetails, setVenueDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFavorite, setIsFavorite] = useState(false);
@@ -49,26 +50,32 @@ export default function VenueDetails() {
     useEffect(() => {
         // Auto-scroll to top when component mounts
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        loadVenueDetails();
+        loadVenueData();
     }, [id]);
 
-    const loadVenueDetails = async () => {
+    const loadVenueData = async () => {
         try {
             setLoading(true);
             setError(null);
 
-            const response = await venueService.getVenueDetails(id);
-            setVenue(response.data);
+            // Load venue details (this includes reviews and ratingStats)
+            const venueResponse = await venueService.getVenueDetails(id);
+            console.log('Venue details response:', venueResponse);
 
-            // TODO: Check if venue is in user's favorites
-            // setIsFavorite(checkIfInFavorites(id));
+            setVenueDetails(venueResponse.data);
+            setVenue(venueResponse.data);
 
         } catch (err) {
-            console.error('Error loading venue details:', err);
+            console.error('Error loading venue data:', err);
             setError(err.message || 'Failed to load venue details');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleReviewSubmitted = async () => {
+        // Reload venue data to get updated ratings and reviews
+        await loadVenueData();
     };
 
     const handleToggleFavorite = () => {
@@ -106,8 +113,8 @@ export default function VenueDetails() {
     };
 
     const handleCall = () => {
-        if (venue.ownerCompany?.contactPhone) {
-            window.location.href = `tel:${venue.ownerCompany.contactPhone}`;
+        if (venue?.owner?.phone) {
+            window.location.href = `tel:${venue.owner.phone}`;
         }
     };
 
@@ -215,12 +222,12 @@ export default function VenueDetails() {
                                             fontSize: { xs: '2rem', md: '3rem' }
                                         }}
                                     >
-                                        {venue.name}
+                                        {venue.name || 'Unnamed Venue'}
                                     </Typography>
 
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap' }}>
                                         <Chip
-                                            label={venue.category}
+                                            label={venue.category || 'Unknown Category'}
                                             color="primary"
                                             variant="outlined"
                                         />
@@ -228,23 +235,26 @@ export default function VenueDetails() {
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                             <LocationOn color="action" fontSize="small" />
                                             <Typography variant="body2" color="text.secondary">
-                                                {venue.location.city}, {venue.location.region}
+                                                {venue.location?.city || 'Unknown'}, {venue.location?.region || 'Unknown'}
                                             </Typography>
                                         </Box>
 
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <People color="action" fontSize="small" />
-                                            <Typography variant="body2" color="text.secondary">
-                                                Up to {venue.capacity} guests
-                                            </Typography>
-                                        </Box>
+                                        {/* Phone number from user */}
+                                        {venue.owner?.phone && (
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                <Phone color="action" fontSize="small" />
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {venue.owner.phone}
+                                                </Typography>
+                                            </Box>
+                                        )}
 
-                                        {/* Rating moved here */}
-                                        {venue.ratingStats.totalReviews > 0 && (
+                                        {/* Rating as stars + review count */}
+                                        {venueDetails?.ratingStats?.totalReviews > 0 && (
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                                 <Star color="warning" fontSize="small" />
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {venue.ratingStats.averageRating} ({venue.ratingStats.totalReviews} reviews)
+                                                    {venueDetails.ratingStats.averageRating.toFixed(1)} ({venueDetails.ratingStats.totalReviews} reviews)
                                                 </Typography>
                                             </Box>
                                         )}
@@ -273,9 +283,9 @@ export default function VenueDetails() {
 
                         {/* Image Gallery */}
                         <VenueImageGallery
-                            images={venue.images}
+                            images={venue.images || []}
                             bannerImage={venue.bannerImage}
-                            venueName={venue.name}
+                            venueName={venue.name || 'Venue'}
                         />
 
                         {/* Venue Information (now includes pricing and owner) */}
@@ -283,9 +293,12 @@ export default function VenueDetails() {
 
                         {/* Reviews Section - moved to bottom */}
                         <VenueReviews
-                            reviews={venue.reviews}
-                            ratingStats={venue.ratingStats}
+                            reviews={venueDetails?.reviews || []}
+                            rating={venueDetails?.ratingStats?.averageRating || 0}
+                            totalReviews={venueDetails?.ratingStats?.totalReviews || 0}
                             venueId={venue._id}
+                            venueOwnerId={venue.owner?._id}
+                            onReviewSubmitted={handleReviewSubmitted}
                         />
 
                         {/* Contact Form (conditionally rendered) */}
@@ -317,7 +330,7 @@ export default function VenueDetails() {
                     zIndex: 1000
                 }}
             >
-                {venue.ownerCompany?.contactPhone && (
+                {venue.owner?.phone && (
                     <Button
                         variant="outlined"
                         color="primary"
