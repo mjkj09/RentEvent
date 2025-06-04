@@ -20,14 +20,18 @@ const venueRoutes = require('./routes/venue.routes');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const reviewRoutes = require('./routes/review.routes');
+const companyRoutes = require('./routes/company.routes');
 
 app.use('/api/venues', venueRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/company', companyRoutes);
 
-const errorHandler = require('./middleware/error.middleware');
-app.use(errorHandler);
+app.use((error, req, res, next) => {
+    const { errorResponse } = require('./utils/response.utils');
+    return errorResponse(res, error);
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
