@@ -154,7 +154,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid item size={{xs: 12, sm: 4}}>
                         <FormField
                             label="Company Name"
                             placeholder="RentEvent"
@@ -165,7 +165,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid item size={{xs: 12, sm: 4}}>
                         <FormField
                             label="NIP"
                             placeholder="1234567890"
@@ -182,7 +182,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid item size={{xs: 12, sm: 4}}>
                         <FormField
                             label="REGON"
                             placeholder="123456789"
@@ -212,7 +212,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid item size={{xs: 12, sm: 4}}>
                         <FormField
                             label="Street Address"
                             placeholder="ul. Przykładowa 123"
@@ -223,7 +223,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid item size={{xs: 12, sm: 4}}>
                         <FormField
                             label="City"
                             placeholder="Krakow"
@@ -234,14 +234,18 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid item size={{xs: 12, sm: 4}}>
+                        <Typography
+                            variant="body2"
+                            sx={{ mb: 1, fontWeight: 500, color: 'text.primary' }}
+                        >
+                            Region
+                        </Typography>
                         <FormControl fullWidth required>
-                            <InputLabel>Region</InputLabel>
                             <Select
                                 variant="outlined"
                                 value={formData.address.region}
                                 onChange={handleChange('region', true)}
-                                label="Region"
                             >
                                 {regions.map((region) => (
                                     <MenuItem key={region} value={region}>
