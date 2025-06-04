@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Typography, Paper, Fade } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import NavBar from '../components/common/NavBar';
 import Footer from '../components/common/Footer';
@@ -14,17 +14,15 @@ export default function CompanySetup() {
     const [loading, setLoading] = useState(true);
     const [hasCompany, setHasCompany] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, isAuthenticated, loading: authLoading } = useAuth();
+
+    // Check if user came from registration
+    const fromRegistration = location.state?.fromRegistration || false;
 
     useEffect(() => {
         const checkCompanyStatus = async () => {
             if (!authLoading && isAuthenticated && user) {
-                // If user is not an owner or trying to be one, redirect
-                if (user.role !== 'owner') {
-                    navigate('/home');
-                    return;
-                }
-
                 try {
                     const companyExists = await companyService.checkCompanyExists();
                     if (companyExists) {
@@ -55,13 +53,9 @@ export default function CompanySetup() {
         }, 100);
     };
 
-    const handleSwitchToRenter = async () => {
-        try {
-            await companyService.switchToRenter();
-            navigate('/home');
-        } catch (error) {
-            console.error('Error switching to renter:', error);
-        }
+    const handleStayAsRenter = async () => {
+        // Just redirect to home - user stays as renter
+        navigate('/home');
     };
 
     const handleCompanyCreated = () => {
@@ -76,7 +70,7 @@ export default function CompanySetup() {
     };
 
     if (authLoading || loading) {
-        return <PageLoader message="Setting up company profile..." />;
+        return <PageLoader message="Loading account setup..." />;
     }
 
     if (!isAuthenticated) {
@@ -114,7 +108,7 @@ export default function CompanySetup() {
                                     fontSize: { xs: '2rem', md: '3rem' }
                                 }}
                             >
-                                Complete Your Owner Profile
+                                {fromRegistration ? 'Welcome to RentEvent!' : 'Account Upgrade'}
                             </Typography>
                             <Typography
                                 variant="h6"
@@ -126,8 +120,11 @@ export default function CompanySetup() {
                                 }}
                             >
                                 {step === 'options'
-                                    ? 'To list venues as an owner, we need some additional information about your business.'
-                                    : 'Please provide your company details to continue as a venue owner.'
+                                    ? (fromRegistration
+                                            ? 'Would you like to upgrade your account to start listing venues, or continue as an event organizer?'
+                                            : 'Choose how you want to use your RentEvent account.'
+                                    )
+                                    : 'Please provide your company details to upgrade to venue owner.'
                                 }
                             </Typography>
                         </Box>
@@ -136,7 +133,7 @@ export default function CompanySetup() {
                         {step === 'options' ? (
                             <CompanySetupOptions
                                 onProceedToForm={handleProceedToForm}
-                                onSwitchToRenter={handleSwitchToRenter}
+                                onSwitchToRenter={handleStayAsRenter}
                             />
                         ) : (
                             <CompanySetupForm

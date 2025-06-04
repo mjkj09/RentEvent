@@ -13,14 +13,15 @@ import {
     Business,
     Person,
     CheckCircle,
-    Info
+    Info,
+    TrendingUp
 } from '@mui/icons-material';
 
 export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter }) {
     return (
         <Box>
             <Grid container spacing={3} justifyContent="center">
-                {/* Continue as Owner Option */}
+                {/* Upgrade to Owner Option */}
                 <Grid item xs={12} md={6}>
                     <Card
                         elevation={2}
@@ -36,7 +37,7 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', p: 3 }}>
-                            <Business
+                            <TrendingUp
                                 sx={{
                                     fontSize: 64,
                                     color: 'primary.main',
@@ -48,15 +49,38 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                                 component="h3"
                                 sx={{ fontWeight: 600, mb: 2 }}
                             >
-                                Continue as Venue Owner
+                                Upgrade to Venue Owner
                             </Typography>
                             <Typography
                                 variant="body1"
                                 color="text.secondary"
                                 sx={{ mb: 3 }}
                             >
-                                Register your company details to start listing and managing venues on our platform.
+                                Register your company details to unlock venue listing and management features on our platform.
                             </Typography>
+
+                            <Box sx={{ textAlign: 'left', mb: 2 }}>
+                                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                                    What you'll get:
+                                </Typography>
+                                {[
+                                    'List unlimited venues',
+                                    'Manage bookings and requests',
+                                    'Access to owner dashboard',
+                                    'Revenue tracking tools'
+                                ].map((item, index) => (
+                                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                        <CheckCircle
+                                            sx={{
+                                                fontSize: 16,
+                                                color: 'success.main',
+                                                mr: 1
+                                            }}
+                                        />
+                                        <Typography variant="body2">{item}</Typography>
+                                    </Box>
+                                ))}
+                            </Box>
 
                             <Box sx={{ textAlign: 'left', mb: 2 }}>
                                 <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
@@ -69,10 +93,10 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                                     'Business address'
                                 ].map((item, index) => (
                                     <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                        <CheckCircle
+                                        <Business
                                             sx={{
                                                 fontSize: 16,
-                                                color: 'success.main',
+                                                color: 'primary.main',
                                                 mr: 1
                                             }}
                                         />
@@ -89,16 +113,16 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                                 color="primary"
                                 size="large"
                                 onClick={onProceedToForm}
-                                startIcon={<Business />}
+                                startIcon={<TrendingUp />}
                                 sx={{ py: 1.5 }}
                             >
-                                Set Up Company Profile
+                                Upgrade to Owner Account
                             </Button>
                         </CardActions>
                     </Card>
                 </Grid>
 
-                {/* Switch to Renter Option */}
+                {/* Stay as Renter Option */}
                 <Grid item xs={12} md={6}>
                     <Card
                         elevation={1}
@@ -124,19 +148,19 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                                 component="h3"
                                 sx={{ fontWeight: 600, mb: 2 }}
                             >
-                                Switch to Renter
+                                Stay as Renter
                             </Typography>
                             <Typography
                                 variant="body1"
                                 color="text.secondary"
                                 sx={{ mb: 3 }}
                             >
-                                If you prefer to search and book venues rather than list them, you can switch to an event organizer account.
+                                Continue with your current account to search and book venues for your events. You can always upgrade later.
                             </Typography>
 
                             <Box sx={{ textAlign: 'left', mb: 2 }}>
                                 <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                                    As a renter you can:
+                                    Your current features:
                                 </Typography>
                                 {[
                                     'Search and filter venues',
@@ -162,13 +186,13 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
                             <Button
                                 fullWidth
                                 variant="outlined"
-                                color="primary"
+                                color="secondary"
                                 size="large"
                                 onClick={onSwitchToRenter}
                                 startIcon={<Person />}
                                 sx={{ py: 1.5 }}
                             >
-                                Switch to Renter
+                                Stay as Renter
                             </Button>
                         </CardActions>
                     </Card>
@@ -188,11 +212,11 @@ export default function CompanySetupOptions({ onProceedToForm, onSwitchToRenter 
             >
                 <Info sx={{ color: 'info.main', fontSize: 32, mb: 1 }} />
                 <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-                    Need Help?
+                    No Pressure!
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                    You can always change your account type later in your profile settings.
-                    If you're unsure, you can start as an event organizer and upgrade to venue owner when ready.
+                    You can always upgrade to venue owner later from your profile settings.
+                    Start exploring venues now and upgrade when you're ready to list your own!
                 </Typography>
             </Box>
         </Box>

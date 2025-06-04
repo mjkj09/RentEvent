@@ -19,7 +19,7 @@ export default function AuthSidebar() {
                 height: { md: 'auto' }
             }}
         >
-            <Box 
+            <Box
                 sx={{
                     position: 'sticky',
                     top: '15vh',
@@ -35,12 +35,12 @@ export default function AuthSidebar() {
                     />
                 </Box>
 
-                <Typography variant="h3" sx={{ mb: { xs: 2, md: 3 }, mr: { md: 3 }, fontWeight: 700, fontSize: { xs: '1.8rem', md: '3rem' } }}>
-                    Discover tailored events.
+                <Typography variant="h3" sx={{ mb: { xs: 2, md: 3 }, mr: { md: 4 }, fontWeight: 700, fontSize: { xs: '1.8rem', md: '3rem' } }}>
+                    Discover tailored venues.
                 </Typography>
 
-                <Typography variant="h5" sx={{ mb: { xs: 6, md: 4 }, mr: { md: 3 }, fontWeight: 400, opacity: 0.9, fontSize: { xs: '1rem', md: '1.25rem' } }}>
-                    Sign up for personalized recommendations today!
+                <Typography variant="h5" sx={{ mb: { xs: 6, md: 4 }, mr: { md: 4 }, fontWeight: 400, opacity: 0.9, fontSize: { xs: '1rem', md: '1.25rem' } }}>
+                    Join as an event organizer, then upgrade to venue owner anytime!
                 </Typography>
 
                 <Typography
@@ -48,13 +48,13 @@ export default function AuthSidebar() {
                     sx={{
                         opacity: 0.8,
                         lineHeight: 1.6,
-                        mr: 3,
+                        mr: 4,
                         display: { xs: 'none', md: 'block' }
                     }}
                 >
-                    Join thousands of event organizers and venue owners who trust RentEvent
-                    to create memorable experiences. Whether you're planning a wedding,
-                    corporate event, or celebration, we've got the perfect venue waiting for you.
+                    Join thousands of event organizers who trust RentEvent to find perfect venues.
+                    Whether you're planning a wedding, corporate event, or celebration,
+                    start your journey as an organizer and upgrade to venue owner when ready.
                 </Typography>
             </Box>
         </Box>
