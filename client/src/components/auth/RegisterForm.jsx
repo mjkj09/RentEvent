@@ -23,7 +23,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
 
-export default function RegisterForm({toggleMode}) {
+export default function RegisterForm({toggleMode, onRegistrationSuccess}) {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         firstName: '',
@@ -173,7 +173,13 @@ export default function RegisterForm({toggleMode}) {
                 ...formData,
                 role: 'renter'
             });
-            navigate('/');
+
+            // Call the callback to indicate successful registration
+            if (onRegistrationSuccess) {
+                onRegistrationSuccess();
+            }
+
+            // Don't navigate here - let Auth.jsx handle it
         } catch (error) {
             setFormError(error.message);
         } finally {

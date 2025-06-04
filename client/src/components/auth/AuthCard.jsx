@@ -3,7 +3,7 @@ import {Box} from '@mui/material';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
-export default function AuthCard({isLogin, toggleMode}) {
+export default function AuthCard({isLogin, toggleMode, onRegistrationSuccess}) {
     return (
         <Box
             sx={{
@@ -23,7 +23,10 @@ export default function AuthCard({isLogin, toggleMode}) {
             {isLogin ? (
                 <LoginForm toggleMode={toggleMode}/>
             ) : (
-                <RegisterForm toggleMode={toggleMode}/>
+                <RegisterForm
+                    toggleMode={toggleMode}
+                    onRegistrationSuccess={onRegistrationSuccess}
+                />
             )}
         </Box>
     );
