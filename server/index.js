@@ -28,10 +28,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/company', companyRoutes);
 
-app.use((error, req, res, next) => {
-    const { errorResponse } = require('./utils/response.utils');
-    return errorResponse(res, error);
-});
+const errorHandler = require('./middleware/error.middleware');
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
