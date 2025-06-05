@@ -1,3 +1,4 @@
+// file: client/src/services/venue.service.js
 import venueApi from '../api/venue.api';
 
 const venueService = {
@@ -79,6 +80,15 @@ const venueService = {
             return response.data;
         } catch (error) {
             throw new Error(error.response?.data?.message || 'Failed to delete venue');
+        }
+    },
+
+    toggleVenueActive: async (id, isActive) => {
+        try {
+            const response = await venueApi.toggleVenueActive(id, isActive);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to toggle venue status');
         }
     },
 

@@ -48,6 +48,11 @@ const venueApi = {
         return response.data;
     },
 
+    toggleVenueActive: async (id, isActive) => {
+        const response = await axiosInstance.patch(`/venues/${id}/toggle-active`, { isActive });
+        return response.data;
+    },
+
     uploadImage: async (file) => {
         const formData = new FormData();
         formData.append('image', file);
