@@ -12,6 +12,7 @@ import VenueDetails from './views/VenueDetails';
 import MyVenues from './views/MyVenues';
 import Profile from './views/Profile';
 import EditVenue from './views/EditVenue';
+import Favourites from './views/Favourites';
 import PageLoader from './components/common/PageLoader';
 import {AuthProvider} from './contexts/AuthProvider';
 import {useAuth} from './hooks/useAuth';
@@ -72,6 +73,11 @@ function App() {
                     <Route path="/venue/:id" element={
                         <ProtectedRoute>
                             <VenueDetails />
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/favourites" element={
+                        <ProtectedRoute>
+                            <Favourites />
                         </ProtectedRoute>
                     }/>
                     <Route path="/requests" element={
