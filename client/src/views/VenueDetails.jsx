@@ -35,7 +35,6 @@ import ContactForm from '../components/venue-details/ContactForm';
 // Services
 import { useAuth } from '../hooks/useAuth';
 import venueService from '../services/venue.service';
-import reviewService from '../services/review.service';
 import favoritesService from '../services/favorites.service';
 
 export default function VenueDetails() {
@@ -49,6 +48,7 @@ export default function VenueDetails() {
     const [error, setError] = useState(null);
     const [isFavorite, setIsFavorite] = useState(false);
     const [showContactForm, setShowContactForm] = useState(false);
+    const [favoriteLoading, setFavoriteLoading] = useState(false);
 
     useEffect(() => {
         // Auto-scroll to top when component mounts
@@ -67,8 +67,6 @@ export default function VenueDetails() {
 
             // Load venue details (this includes reviews and ratingStats)
             const venueResponse = await venueService.getVenueDetails(id);
-            console.log('Venue details response:', venueResponse);
-
             setVenueDetails(venueResponse);
             setVenue(venueResponse);
 
@@ -76,9 +74,10 @@ export default function VenueDetails() {
             if (isAuthenticated) {
                 try {
                     const favoriteStatus = await favoritesService.checkFavorite(id);
-                    setIsFavorite(favoriteStatus);
+                    setIsFavorite(Boolean(favoriteStatus));
                 } catch (err) {
                     console.warn('Failed to check favorite status:', err);
+                    setIsFavorite(false);
                 }
             }
 
@@ -102,10 +101,13 @@ export default function VenueDetails() {
         }
 
         try {
+            setFavoriteLoading(true);
             const newStatus = await favoritesService.toggleFavorite(id, isFavorite);
             setIsFavorite(newStatus);
         } catch (err) {
             console.error('Failed to toggle favorite:', err);
+        } finally {
+            setFavoriteLoading(false);
         }
     };
 
@@ -123,7 +125,6 @@ export default function VenueDetails() {
         } else {
             // Fallback to copying URL to clipboard
             navigator.clipboard.writeText(window.location.href);
-            // TODO: Show toast notification
         }
     };
 
@@ -292,8 +293,17 @@ export default function VenueDetails() {
                                 </Box>
 
                                 <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-                                    <IconButton onClick={handleToggleFavorite} color="primary">
-                                        {isFavorite ? <Favorite /> : <FavoriteBorder />}
+                                    <IconButton
+                                        onClick={handleToggleFavorite}
+                                        color="primary"
+                                        disabled={favoriteLoading}
+                                        sx={{
+                                            '&:disabled': {
+                                                opacity: 0.6
+                                            }
+                                        }}
+                                    >
+                                        {isFavorite ? <Favorite sx={{ color: 'error.main' }} /> : <FavoriteBorder />}
                                     </IconButton>
                                     <IconButton onClick={handleShare} color="primary">
                                         <Share />
@@ -318,10 +328,10 @@ export default function VenueDetails() {
                             venueName={venue.name || 'Venue'}
                         />
 
-                        {/* Venue Information (now includes pricing and owner) */}
+                        {/* Venue Information */}
                         <VenueInfo venue={venue} onContactOwner={handleContactOwner} />
 
-                        {/* Reviews Section - moved to bottom */}
+                        {/* Reviews Section */}
                         <VenueReviews
                             reviews={venueDetails?.reviews || []}
                             rating={venueDetails?.ratingStats?.averageRating || 0}
@@ -331,7 +341,7 @@ export default function VenueDetails() {
                             onReviewSubmitted={handleReviewSubmitted}
                         />
 
-                        {/* Contact Form (conditionally rendered) */}
+                        {/* Contact Form */}
                         {showContactForm && (
                             <Box id="contact-form" sx={{ mt: 6 }}>
                                 <ContactForm
@@ -389,14 +399,18 @@ export default function VenueDetails() {
                 <Fab
                     color="primary"
                     onClick={handleToggleFavorite}
+                    disabled={favoriteLoading}
                     sx={{
                         position: 'fixed',
                         bottom: 100,
                         right: 16,
-                        zIndex: 999
+                        zIndex: 999,
+                        '&:disabled': {
+                            opacity: 0.6
+                        }
                     }}
                 >
-                    {isFavorite ? <Favorite /> : <FavoriteBorder />}
+                    {isFavorite ? <Favorite sx={{ color: 'error.main' }} /> : <FavoriteBorder />}
                 </Fab>
 
                 <Fab
