@@ -76,7 +76,29 @@ exports.checkFavorite = async (userId, venueId) => {
         throw new AppError('User not found', 404);
     }
 
-    return user.favorites && user.favorites.includes(venueId);
+    if (!user.favorites || user.favorites.length === 0) {
+        return false;
+    }
+
+    // Convert venue ID to string for comparison
+    const venueIdString = venueId.toString();
+
+    const isFavorite = user.favorites.some(favorite => {
+        // Handle both cases: favorite might be just an ID or a full object
+        let favoriteId;
+
+        if (typeof favorite === 'object' && favorite !== null) {
+            // If favorite is an object, get its _id
+            favoriteId = favorite._id ? favorite._id.toString() : favorite.toString();
+        } else {
+            // If favorite is already an ID
+            favoriteId = favorite.toString();
+        }
+
+        return favoriteId === venueIdString;
+    });
+
+    return isFavorite;
 };
 
 // Nowe funkcje dla profilu
