@@ -33,12 +33,15 @@ import VenueReviews from '../components/venue-details/VenueReviews';
 import ContactForm from '../components/venue-details/ContactForm';
 
 // Services
+import { useAuth } from '../hooks/useAuth';
 import venueService from '../services/venue.service';
 import reviewService from '../services/review.service';
+import favoritesService from '../services/favorites.service';
 
 export default function VenueDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
 
     const [venue, setVenue] = useState(null);
     const [venueDetails, setVenueDetails] = useState(null);
@@ -50,8 +53,12 @@ export default function VenueDetails() {
     useEffect(() => {
         // Auto-scroll to top when component mounts
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (!isAuthenticated) {
+            navigate('/auth');
+            return;
+        }
         loadVenueData();
-    }, [id]);
+    }, [id, isAuthenticated, navigate]);
 
     const loadVenueData = async () => {
         try {
@@ -62,8 +69,18 @@ export default function VenueDetails() {
             const venueResponse = await venueService.getVenueDetails(id);
             console.log('Venue details response:', venueResponse);
 
-            setVenueDetails(venueResponse.data);
-            setVenue(venueResponse.data);
+            setVenueDetails(venueResponse);
+            setVenue(venueResponse);
+
+            // Check if venue is in user's favorites
+            if (isAuthenticated) {
+                try {
+                    const favoriteStatus = await favoritesService.checkFavorite(id);
+                    setIsFavorite(favoriteStatus);
+                } catch (err) {
+                    console.warn('Failed to check favorite status:', err);
+                }
+            }
 
         } catch (err) {
             console.error('Error loading venue data:', err);
@@ -78,9 +95,18 @@ export default function VenueDetails() {
         await loadVenueData();
     };
 
-    const handleToggleFavorite = () => {
-        setIsFavorite(!isFavorite);
-        // TODO: Implement favorite toggle API call
+    const handleToggleFavorite = async () => {
+        if (!isAuthenticated) {
+            navigate('/auth');
+            return;
+        }
+
+        try {
+            const newStatus = await favoritesService.toggleFavorite(id, isFavorite);
+            setIsFavorite(newStatus);
+        } catch (err) {
+            console.error('Failed to toggle favorite:', err);
+        }
     };
 
     const handleShare = async () => {
@@ -121,6 +147,10 @@ export default function VenueDetails() {
     const handleBack = () => {
         navigate(-1);
     };
+
+    if (!isAuthenticated) {
+        return null; // Will redirect in useEffect
+    }
 
     if (loading) {
         return (
