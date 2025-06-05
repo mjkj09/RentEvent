@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Grid, Typography, Pagination, Backdrop } from '@mui/material';
+import { Box, Container, Grid, Typography, Pagination, Backdrop, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 // Components
@@ -12,19 +12,17 @@ import SortingOptions from '../components/search/SortingOptions';
 import { DotsSpinner, CircularSpinner } from '../components/common/LoadingSpinner';
 
 // Hooks and utilities
+import { useAuth } from '../hooks/useAuth';
 import { useSearchState } from '../hooks/useSearchState';
-import { filterAndSortVenues, formatVenueForDisplay, isSliderChange, scrollToTop } from '../utils/searchUtils';
-import { mockVenues } from '../data/mockVenues';
+import { formatVenueForDisplay, buildApiQuery, scrollToTop } from '../utils/searchUtils';
+import venueService from '../services/venue.service';
+import favoritesService from '../services/favorites.service';
 
 const ITEMS_PER_PAGE = 12;
 
-// Helper function to simulate async operation (replace with real API calls)
-const simulateAsyncOperation = async (duration = 800) => {
-    return new Promise(resolve => setTimeout(resolve, duration));
-};
-
 export default function Search() {
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
 
     // Search state management
     const {
@@ -40,82 +38,128 @@ export default function Search() {
     } = useSearchState();
 
     // Local component state
-    const [venues] = useState(mockVenues);
-    const [filteredVenues, setFilteredVenues] = useState(mockVenues);
+    const [venues, setVenues] = useState([]);
     const [favorites, setFavorites] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Scroll to top on component mount (when coming from Home)
+    // Scroll to top on component mount
     useEffect(() => {
         scrollToTop();
     }, []);
 
-    // Apply filters and sorting with loading
+    // Load user favorites
     useEffect(() => {
-        const applyFiltersAndSort = async () => {
+        if (isAuthenticated) {
+            loadUserFavorites();
+        }
+    }, [isAuthenticated]);
+
+    // Search venues when filters/query changes
+    useEffect(() => {
+        searchVenues();
+    }, [debouncedFilters, debouncedSearchQuery, sortBy, currentPage]);
+
+    const loadUserFavorites = async () => {
+        try {
+            const userFavorites = await favoritesService.getFavorites();
+            setFavorites(userFavorites.map(venue => venue._id));
+        } catch (err) {
+            console.error('Error loading user favorites:', err);
+        }
+    };
+
+    const searchVenues = async () => {
+        try {
             if (!isInitialLoad) {
                 setIsLoading(true);
             }
+            setError(null);
 
-            // Simulate API call delay
-            await simulateAsyncOperation(isInitialLoad ? 500 : 300);
-
-            // Apply filters and sorting
-            const filtered = filterAndSortVenues(
-                venues,
+            // Build API query parameters
+            const queryParams = buildApiQuery(
                 debouncedFilters,
                 sortBy,
-                debouncedSearchQuery
+                debouncedSearchQuery,
+                currentPage,
+                ITEMS_PER_PAGE
             );
 
-            setFilteredVenues(filtered);
-            setCurrentPage(1);
-            setIsLoading(false);
-            setIsInitialLoad(false);
+            // Call API
+            const response = await venueService.getAllVenues(queryParams);
+            const venueData = Array.isArray(response) ? response : [];
+
+            setVenues(venueData);
+
+            // Calculate total pages (since we don't have pagination from API yet)
+            setTotalPages(Math.max(1, Math.ceil(venueData.length / ITEMS_PER_PAGE)));
+
+            if (isInitialLoad) {
+                setIsInitialLoad(false);
+            }
 
             // Scroll to top after applying debounced changes
             if (!isInitialLoad) {
                 scrollToTop();
             }
-        };
 
-        applyFiltersAndSort();
-    }, [venues, debouncedFilters, sortBy, debouncedSearchQuery, isInitialLoad]);
+        } catch (err) {
+            setError(err.message || 'Failed to search venues');
+            setVenues([]);
+            setTotalPages(1);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Event handlers
     const handleFilterChange = (newFilters) => {
         setFilters(newFilters);
+        setCurrentPage(1);
         updateURL(searchQuery, newFilters, sortBy);
-
-        // Only scroll for immediate filters (non-slider), debounced ones will scroll when applied
-        if (!isSliderChange(newFilters, filters)) {
-            scrollToTop();
-        }
     };
 
     const handleSortChange = (newSort) => {
         setSortBy(newSort);
+        setCurrentPage(1);
         updateURL(searchQuery, filters, newSort);
         scrollToTop();
     };
 
     const handleSearchChange = (query) => {
         setSearchQuery(query);
+        setCurrentPage(1);
         updateURL(query, filters, sortBy);
-        // Don't scroll immediately - will scroll when debounced search applies
     };
 
-    const toggleFavorite = (venueId) => {
-        setFavorites(prev =>
-            prev.includes(venueId)
-                ? prev.filter(id => id !== venueId)
-                : [...prev, venueId]
-        );
+    const handleToggleFavorite = async (venueId) => {
+        if (!isAuthenticated) {
+            navigate('/auth');
+            return;
+        }
+
+        try {
+            const currentStatus = favorites.includes(venueId);
+            const newStatus = await favoritesService.toggleFavorite(venueId, currentStatus);
+
+            if (newStatus) {
+                setFavorites(prev => [...prev, venueId]);
+            } else {
+                setFavorites(prev => prev.filter(id => id !== venueId));
+            }
+        } catch (err) {
+            console.error('Failed to toggle favorite:', err);
+        }
     };
 
     const handleVenueClick = (venueId) => {
+        if (!isAuthenticated) {
+            navigate('/auth');
+            return;
+        }
         navigate(`/venue/${venueId}`);
     };
 
@@ -124,14 +168,12 @@ export default function Search() {
         scrollToTop();
     };
 
-    // Paginate results and format for display
-    const totalPages = Math.ceil(filteredVenues.length / ITEMS_PER_PAGE);
+    // Format venues for display and paginate
+    const formattedVenues = venues.map(formatVenueForDisplay);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const paginatedVenues = filteredVenues
-        .slice(startIndex, startIndex + ITEMS_PER_PAGE)
-        .map(formatVenueForDisplay);
+    const paginatedVenues = formattedVenues.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    // Show initial loading on first load
+    // Show initial loading
     if (isInitialLoad) {
         return (
             <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -171,7 +213,7 @@ export default function Search() {
             <Container maxWidth="lg" sx={{ flex: 1, py: 3 }}>
                 <Grid container spacing={3}>
                     {/* Filters Section */}
-                    <Grid item size={{ xs: 12, md: 3 }}>
+                    <Grid size={{ xs: 12, md: 3 }}>
                         <SearchFilters
                             filters={filters}
                             onFilterChange={handleFilterChange}
@@ -179,13 +221,19 @@ export default function Search() {
                     </Grid>
 
                     {/* Results Section */}
-                    <Grid item size={{ xs: 12, md: 9 }}>
+                    <Grid size={{ xs: 12, md: 9 }}>
                         <Box sx={{ mb: 3 }}>
                             <SearchBar
                                 value={searchQuery}
                                 onChange={handleSearchChange}
                             />
                         </Box>
+
+                        {error && (
+                            <Alert severity="error" sx={{ mb: 3 }}>
+                                {error}
+                            </Alert>
+                        )}
 
                         <Box sx={{
                             display: 'flex',
@@ -196,7 +244,7 @@ export default function Search() {
                             gap: 2
                         }}>
                             <Typography variant="h6" color="text.secondary">
-                                {filteredVenues.length} venues found
+                                {venues.length} venues found
                             </Typography>
                             <SortingOptions
                                 value={sortBy}
@@ -207,8 +255,9 @@ export default function Search() {
                         <SearchResults
                             venues={paginatedVenues}
                             favorites={favorites}
-                            onToggleFavorite={toggleFavorite}
+                            onToggleFavorite={handleToggleFavorite}
                             onVenueClick={handleVenueClick}
+                            isAuthenticated={isAuthenticated}
                         />
 
                         {totalPages > 1 && (
