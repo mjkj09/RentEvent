@@ -51,16 +51,7 @@ export default function VenueReviews({
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedReview, setSelectedReview] = useState(null);
 
-    // Get user ID - try all possible fields
     const userId = user?._id || user?.id;
-
-    // Debug logging to understand the user object structure
-    console.log('🔍 Full user object:', user);
-    console.log('🔍 User ID options:', {
-        '_id': user?._id,
-        'id': user?.id,
-        'selectedUserId': userId
-    });
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -96,7 +87,6 @@ export default function VenueReviews({
     };
 
     const handleEditReview = (review) => {
-        console.log('🔧 Editing review:', review);
         setEditingReview(review);
         setNewRating(review.rating);
         setNewComment(review.comment || '');
@@ -132,16 +122,10 @@ export default function VenueReviews({
                 comment: newComment.trim()
             };
 
-            console.log('📝 Submitting review:', { editingReview, reviewData });
-
             if (editingReview) {
-                // Update existing review
                 await reviewService.updateReview(editingReview._id, reviewData);
-                console.log('✅ Review updated successfully');
             } else {
-                // Create new review
                 await reviewService.createReview(reviewData);
-                console.log('✅ Review created successfully');
             }
 
             handleCloseReview();
@@ -150,7 +134,6 @@ export default function VenueReviews({
                 onReviewSubmitted();
             }
         } catch (error) {
-            console.error('❌ Error submitting review:', error);
             setSubmitError(error.message || 'Failed to submit review. Please try again.');
         } finally {
             setIsSubmitting(false);
@@ -158,23 +141,19 @@ export default function VenueReviews({
     };
 
     const handleDeleteReview = async (reviewId) => {
-        console.log('🗑️ Deleting review:', reviewId);
         try {
             await reviewService.deleteReview(reviewId);
-            console.log('✅ Review deleted successfully');
             handleCloseMenu();
 
             if (onReviewSubmitted) {
                 onReviewSubmitted();
             }
         } catch (error) {
-            console.error('❌ Error deleting review:', error);
-            // You could show an error message here
+            console.error('Error deleting review:', error);
         }
     };
 
     const handleMenuClick = (event, review) => {
-        console.log('📱 Menu clicked for review:', review);
         setAnchorEl(event.currentTarget);
         setSelectedReview(review);
     };
@@ -272,7 +251,6 @@ export default function VenueReviews({
                     </Button>
                 )}
 
-                {/* Add Review Dialog for no reviews case */}
                 <Dialog open={showAddReview} onClose={handleCloseReview} maxWidth="sm" fullWidth>
                     <DialogTitle>
                         {editingReview ? 'Edit Review' : 'Write a Review'}
@@ -405,21 +383,6 @@ export default function VenueReviews({
                 <Box>
                     {paginatedReviews.map((review, index) => {
                         const isUserReview = user && review.user._id === userId;
-
-                        // Enhanced debug logging
-                        console.log(`🔍 Review ${index} comparison:`, {
-                            reviewId: review._id,
-                            reviewUserId: review.user._id,
-                            currentUserId: userId,
-                            directComparison: review.user._id === userId,
-                            stringComparison: String(review.user._id) === String(userId),
-                            isUserReview: isUserReview,
-                            reviewUserName: review.user.name,
-                            userTypes: {
-                                reviewUserIdType: typeof review.user._id,
-                                currentUserIdType: typeof userId
-                            }
-                        });
 
                         return (
                             <Box key={review._id || index} sx={{ mb: 3 }}>
