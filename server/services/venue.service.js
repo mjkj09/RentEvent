@@ -3,6 +3,37 @@ const reviewRepository = require('../repositories/review.repository');
 const companyRepository = require('../repositories/company.repository');
 const AppError = require('../utils/AppError');
 
+exports.getOwnerVenues = async (ownerId) => {
+    const venues = await venueRepo.findAll({ owner: ownerId });
+
+    // Get rating stats for each venue
+    return await Promise.all(
+        venues.map(async (venue) => {
+            const reviews = await reviewRepository.findByVenue(venue._id);
+
+            const ratingStats = {
+                averageRating: 0,
+                totalReviews: reviews.length,
+                ratingDistribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+            };
+
+            if (reviews.length > 0) {
+                const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+                ratingStats.averageRating = Number((totalRating / reviews.length).toFixed(1));
+
+                reviews.forEach(review => {
+                    ratingStats.ratingDistribution[review.rating]++;
+                });
+            }
+
+            return {
+                ...venue.toObject(),
+                ratingStats
+            };
+        })
+    );
+};
+
 exports.listVenues = (filters) =>
     venueRepo.findAll(filters);
 

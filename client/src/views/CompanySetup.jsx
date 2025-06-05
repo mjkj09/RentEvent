@@ -13,24 +13,34 @@ export default function CompanySetup() {
     const [step, setStep] = useState('options'); // 'options' or 'form'
     const [loading, setLoading] = useState(true);
     const [hasCompany, setHasCompany] = useState(false);
+    const [existingCompany, setExistingCompany] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
     const { user, isAuthenticated, loading: authLoading } = useAuth();
 
-    // Check if user came from registration or create listing
+    // Check if user came from registration, create listing, or editing
     const fromRegistration = location.state?.fromRegistration || false;
     const fromCreateListing = location.state?.fromCreateListing || false;
+    const isEditing = location.state?.isEditing || false;
     const returnTo = location.state?.returnTo;
 
     useEffect(() => {
         const checkCompanyStatus = async () => {
             if (!authLoading && isAuthenticated && user) {
                 try {
-                    const companyExists = await companyService.checkCompanyExists();
-                    if (companyExists) {
+                    const company = await companyService.getMyCompany();
+                    if (company) {
                         setHasCompany(true);
-                        navigate('/home'); // Redirect if company already exists
-                        return;
+                        setExistingCompany(company);
+
+                        // If editing, go directly to form
+                        if (isEditing) {
+                            setStep('form');
+                        } else {
+                            // If not editing and has company, redirect to home
+                            navigate('/home');
+                            return;
+                        }
                     }
                 } catch (error) {
                     console.error('Error checking company status:', error);
@@ -40,28 +50,27 @@ export default function CompanySetup() {
         };
 
         checkCompanyStatus();
-    }, [user, isAuthenticated, authLoading, navigate]);
+    }, [user, isAuthenticated, authLoading, navigate, isEditing]);
 
     useEffect(() => {
-        // Auto-scroll to top when component mounts
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
 
     const handleProceedToForm = () => {
         setStep('form');
-        // Smooth scroll to top when showing form
         setTimeout(() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 100);
     };
 
     const handleStayAsRenter = async () => {
-        // Just redirect to home - user stays as renter
         navigate('/home');
     };
 
     const handleCompanyCreated = () => {
-        if (fromCreateListing && returnTo) {
+        if (isEditing) {
+            navigate('/profile');
+        } else if (fromCreateListing && returnTo) {
             navigate(returnTo);
         } else {
             navigate('/home');
@@ -69,10 +78,14 @@ export default function CompanySetup() {
     };
 
     const handleBackToOptions = () => {
-        setStep('options');
-        setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 100);
+        if (isEditing) {
+            navigate('/profile');
+        } else {
+            setStep('options');
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        }
     };
 
     if (authLoading || loading) {
@@ -84,7 +97,7 @@ export default function CompanySetup() {
         return null;
     }
 
-    if (hasCompany) {
+    if (hasCompany && !isEditing) {
         return <PageLoader message="Redirecting..." />;
     }
 
@@ -114,9 +127,10 @@ export default function CompanySetup() {
                                     fontSize: { xs: '2rem', md: '3rem' }
                                 }}
                             >
-                                {fromRegistration ? 'Welcome to RentEvent!' :
-                                    fromCreateListing ? 'Create Your First Listing' :
-                                        'Account Upgrade'}
+                                {isEditing ? 'Edit Company Information' :
+                                    fromRegistration ? 'Welcome to RentEvent!' :
+                                        fromCreateListing ? 'Create Your First Listing' :
+                                            'Account Upgrade'}
                             </Typography>
                             <Typography
                                 variant="h6"
@@ -127,20 +141,21 @@ export default function CompanySetup() {
                                     fontSize: { xs: '1rem', md: '1.25rem' }
                                 }}
                             >
-                                {step === 'options'
-                                    ? (fromRegistration
-                                            ? 'Would you like to upgrade your account to start listing venues, or continue as an event organizer?'
-                                            : fromCreateListing
-                                                ? 'To create venue listings, you need to upgrade your account. Would you like to provide your company details or continue browsing as an event organizer?'
-                                                : 'Choose how you want to use your RentEvent account.'
-                                    )
-                                    : 'Please provide your company details to upgrade to venue owner.'
+                                {isEditing ? 'Update your company details and business information' :
+                                    step === 'options'
+                                        ? (fromRegistration
+                                                ? 'Would you like to upgrade your account to start listing venues, or continue as an event organizer?'
+                                                : fromCreateListing
+                                                    ? 'To create venue listings, you need to upgrade your account. Would you like to provide your company details or continue browsing as an event organizer?'
+                                                    : 'Choose how you want to use your RentEvent account.'
+                                        )
+                                        : 'Please provide your company details to upgrade to venue owner.'
                                 }
                             </Typography>
                         </Box>
 
                         {/* Content */}
-                        {step === 'options' ? (
+                        {step === 'options' && !isEditing ? (
                             <CompanySetupOptions
                                 onProceedToForm={handleProceedToForm}
                                 onSwitchToRenter={handleStayAsRenter}
@@ -150,6 +165,8 @@ export default function CompanySetup() {
                             <CompanySetupForm
                                 onCompanyCreated={handleCompanyCreated}
                                 onBack={handleBackToOptions}
+                                isEditing={isEditing}
+                                existingCompany={existingCompany}
                             />
                         )}
                     </Paper>

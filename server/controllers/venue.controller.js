@@ -1,6 +1,15 @@
 const venueService = require('../services/venue.service');
 const { successResponse, errorResponse } = require('../utils/response.utils');
 
+exports.getMyVenues = async (req, res, next) => {
+    try {
+        const venues = await venueService.getOwnerVenues(req.user.id);
+        return successResponse(res, 'Your venues retrieved successfully', venues);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
 exports.getAllVenues = async (req, res, next) => {
     try {
         const venues = await venueService.listVenues(req.query);

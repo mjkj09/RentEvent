@@ -50,6 +50,30 @@ export default function VenueInfo({ venue, onContactOwner }) {
         return `${firstInitial}${lastInitial}`;
     };
 
+    // Format description with preserved line breaks
+    const formatDescription = (text) => {
+        if (!text) return 'No description available for this venue.';
+
+        // Split by double line breaks to create paragraphs
+        const paragraphs = text.split('\n\n').filter(p => p.trim());
+
+        return paragraphs.map((paragraph, index) => (
+            <Typography
+                key={index}
+                variant="body1"
+                sx={{
+                    lineHeight: 1.7,
+                    color: 'text.primary',
+                    fontSize: '1.1rem',
+                    mb: index < paragraphs.length - 1 ? 2 : 0, // Add margin between paragraphs
+                    whiteSpace: 'pre-line' // Preserves single line breaks within paragraphs
+                }}
+            >
+                {paragraph.trim()}
+            </Typography>
+        ));
+    };
+
     // Standard tile styling
     const tileStyle = {
         p: 3,
@@ -95,17 +119,10 @@ export default function VenueInfo({ venue, onContactOwner }) {
                     About This Venue
                 </Typography>
 
-                <Typography
-                    variant="body1"
-                    sx={{
-                        lineHeight: 1.7,
-                        color: 'text.primary',
-                        fontSize: '1.1rem',
-                        mb: 4
-                    }}
-                >
-                    {venue.description || 'No description available for this venue.'}
-                </Typography>
+                {/* Description with preserved formatting */}
+                <Box sx={{ mb: 4 }}>
+                    {formatDescription(venue.description)}
+                </Box>
 
                 {/* Status Chips */}
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -235,6 +252,9 @@ export default function VenueInfo({ venue, onContactOwner }) {
                                 <Box sx={{ flex: 1 }}>
                                     <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
                                         {venue.owner.name} {venue.owner.surname}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Property Owner
                                     </Typography>
                                 </Box>
                             </Box>

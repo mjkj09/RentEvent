@@ -9,6 +9,9 @@ import Search from './views/Search';
 import CompanySetup from './views/CompanySetup';
 import CreateListing from './views/CreateListing';
 import VenueDetails from './views/VenueDetails';
+import MyVenues from './views/MyVenues';
+import Profile from './views/Profile';
+import EditVenue from './views/EditVenue';
 import PageLoader from './components/common/PageLoader';
 import {AuthProvider} from './contexts/AuthProvider';
 import {useAuth} from './hooks/useAuth';
@@ -51,6 +54,21 @@ function App() {
                             <CreateListing/>
                         </ProtectedRoute>
                     }/>
+                    <Route path="/edit-venue/:id" element={
+                        <ProtectedRoute>
+                            <EditVenue />
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/profile" element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/my-venues" element={
+                        <ProtectedRoute>
+                            <MyVenues />
+                        </ProtectedRoute>
+                    }/>
                     <Route path="/venue/:id" element={
                         <ProtectedRoute>
                             <VenueDetails />
@@ -64,21 +82,6 @@ function App() {
                     <Route path="/favourites" element={
                         <ProtectedRoute>
                             <PageLoader message="Loading favourites..." />
-                        </ProtectedRoute>
-                    }/>
-                    <Route path="/my-venues" element={
-                        <ProtectedRoute>
-                            <PageLoader message="Loading your venues..." />
-                        </ProtectedRoute>
-                    }/>
-                    <Route path="/profile" element={
-                        <ProtectedRoute>
-                            <PageLoader message="Loading profile..." />
-                        </ProtectedRoute>
-                    }/>
-                    <Route path="/venue/:id" element={
-                        <ProtectedRoute>
-                            <PageLoader message="Loading venue details..." />
                         </ProtectedRoute>
                     }/>
                 </Routes>

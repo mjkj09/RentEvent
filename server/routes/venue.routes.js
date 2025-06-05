@@ -22,4 +22,6 @@ router.post('/upload-image',
 router.put('/:id', verifyToken, hasRole(['owner', 'admin']), ctrl.updateVenue);
 router.delete('/:id', verifyToken, hasRole(['owner', 'admin']), ctrl.deleteVenue);
 
+router.get('/my/venues', verifyToken, hasRole(['owner']), ctrl.getMyVenues);
+
 module.exports = router;
