@@ -31,9 +31,8 @@ const favoritesService = {
     checkFavorite: async (venueId) => {
         try {
             const response = await userApi.checkFavorite(venueId);
-            return response.data?.isFavorite || false;
+            return Boolean(response.data?.isFavorite);
         } catch (error) {
-            // Don't throw error for check - just return false
             console.warn('Failed to check favorite status:', error);
             return false;
         }
