@@ -16,7 +16,7 @@ import {
     People
 } from '@mui/icons-material';
 
-export default function VenueCard({ venue, isFavorite, onToggleFavorite, onViewDetails }) {
+export default function VenueCard({ venue, isFavorite, onToggleFavorite, onViewDetails, isAuthenticated = true }) {
     return (
         <Card
             sx={{
@@ -44,27 +44,29 @@ export default function VenueCard({ venue, isFavorite, onToggleFavorite, onViewD
                         objectFit: 'cover'
                     }}
                 />
-                <IconButton
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleFavorite();
-                    }}
-                    sx={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        backgroundColor: 'rgba(255,255,255,0.9)',
-                        '&:hover': {
-                            backgroundColor: 'rgba(255,255,255,1)'
-                        }
-                    }}
-                >
-                    {isFavorite ? (
-                        <Favorite sx={{ color: 'error.main' }} />
-                    ) : (
-                        <FavoriteBorder />
-                    )}
-                </IconButton>
+                {isAuthenticated && (
+                    <IconButton
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavorite();
+                        }}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            backgroundColor: 'rgba(255,255,255,0.9)',
+                            '&:hover': {
+                                backgroundColor: 'rgba(255,255,255,1)'
+                            }
+                        }}
+                    >
+                        {isFavorite ? (
+                            <Favorite sx={{ color: 'error.main' }} />
+                        ) : (
+                            <FavoriteBorder />
+                        )}
+                    </IconButton>
+                )}
                 {venue.tags && venue.tags.map((tag, index) => (
                     <Chip
                         key={index}
@@ -124,7 +126,7 @@ export default function VenueCard({ venue, isFavorite, onToggleFavorite, onViewD
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <People sx={{ fontSize: 18, color: 'text.secondary', mr: 0.5 }} />
                         <Typography variant="body2" color="text.secondary">
-                            {venue.capacity}
+                            Up to {venue.capacity} guests
                         </Typography>
                     </Box>
                 </Box>
