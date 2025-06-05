@@ -1,15 +1,12 @@
 import venueApi from '../api/venue.api';
 
 const venueService = {
-    getAllVenues: async (params = {}) => {
+    getAllVenues: async (filters = {}) => {
         try {
-            const response = await venueApi.getAllVenues(params);
+            const response = await venueApi.getAllVenues(filters);
             return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.error?.message ||
-                error.response?.data?.message ||
-                'Failed to fetch venues. Please try again.';
-            throw new Error(errorMessage);
+            throw new Error(error.response?.data?.message || 'Failed to fetch venues');
         }
     },
 
@@ -18,21 +15,34 @@ const venueService = {
             const response = await venueApi.getVenueById(id);
             return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.error?.message ||
-                error.response?.data?.message ||
-                'Failed to fetch venue details.';
-            throw new Error(errorMessage);
+            throw new Error(error.response?.data?.message || 'Failed to fetch venue');
         }
     },
 
     getVenueDetails: async (id) => {
         try {
-            return await venueApi.getVenueDetails(id);
+            const response = await venueApi.getVenueDetails(id);
+            return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.error?.message ||
-                error.response?.data?.message ||
-                'Failed to fetch venue details.';
-            throw new Error(errorMessage);
+            throw new Error(error.response?.data?.message || 'Failed to fetch venue details');
+        }
+    },
+
+    getCategoryStats: async () => {
+        try {
+            const response = await venueApi.getCategoryStats();
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to fetch category statistics');
+        }
+    },
+
+    getPopularVenues: async (limit = 6) => {
+        try {
+            const response = await venueApi.getPopularVenues(limit);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to fetch popular venues');
         }
     },
 
@@ -41,54 +51,34 @@ const venueService = {
             const response = await venueApi.getMyVenues();
             return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.error?.message ||
-                error.response?.data?.message ||
-                'Failed to fetch your venues.';
-            throw new Error(errorMessage);
+            throw new Error(error.response?.data?.message || 'Failed to fetch your venues');
         }
     },
 
     createVenue: async (venueData) => {
         try {
             const response = await venueApi.createVenue(venueData);
-            return {
-                venue: response.data,
-                message: response.message
-            };
+            return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.error?.message ||
-                error.response?.data?.message ||
-                'Failed to create venue. Please try again.';
-            throw new Error(errorMessage);
+            throw new Error(error.response?.data?.message || 'Failed to create venue');
         }
     },
 
     updateVenue: async (id, venueData) => {
         try {
             const response = await venueApi.updateVenue(id, venueData);
-            return {
-                venue: response.data,
-                message: response.message
-            };
+            return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.error?.message ||
-                error.response?.data?.message ||
-                'Failed to update venue. Please try again.';
-            throw new Error(errorMessage);
+            throw new Error(error.response?.data?.message || 'Failed to update venue');
         }
     },
 
     deleteVenue: async (id) => {
         try {
             const response = await venueApi.deleteVenue(id);
-            return {
-                message: response.message
-            };
+            return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.error?.message ||
-                error.response?.data?.message ||
-                'Failed to delete venue. Please try again.';
-            throw new Error(errorMessage);
+            throw new Error(error.response?.data?.message || 'Failed to delete venue');
         }
     },
 
@@ -97,10 +87,7 @@ const venueService = {
             const response = await venueApi.uploadImage(file);
             return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.error?.message ||
-                error.response?.data?.message ||
-                'Failed to upload image. Please try again.';
-            throw new Error(errorMessage);
+            throw new Error(error.response?.data?.message || 'Failed to upload image');
         }
     }
 };
