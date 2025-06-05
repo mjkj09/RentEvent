@@ -9,6 +9,7 @@ router.get('/stats/categories', ctrl.getCategoryStats);
 router.get('/popular', ctrl.getPopularVenues);
 router.get('/:id', ctrl.getVenueById);
 router.get('/:id/details', ctrl.getVenueDetails);
+router.patch('/:id/toggle-active', verifyToken, ctrl.toggleVenueActive);
 
 // Protected routes
 router.post('/', verifyToken, hasRole(['owner']), ctrl.createVenue);

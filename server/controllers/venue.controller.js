@@ -92,6 +92,19 @@ exports.deleteVenue = async (req, res, next) => {
     }
 };
 
+exports.toggleVenueActive = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { isActive } = req.body;
+        const userId = req.user.id;
+
+        const updatedVenue = await venueService.toggleVenueActive(id, userId, isActive);
+        return successResponse(res, `Venue ${isActive ? 'activated' : 'deactivated'} successfully`, updatedVenue);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
 // Image upload handler
 exports.uploadImage = async (req, res, next) => {
     try {

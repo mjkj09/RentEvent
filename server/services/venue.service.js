@@ -309,7 +309,33 @@ exports.deleteVenue = async (id) => {
     }
 };
 
-// Fixed: use venueRepo instead of venueRepository
+
+exports.toggleVenueActive = async (venueId, userId, isActive) => {
+    const venue = await venueRepo.findById(venueId);
+    if (!venue) {
+        throw new AppError('Venue not found', 404);
+    }
+
+    // Handle both cases: venue.owner might be just ObjectId or populated object
+    let venueOwnerId;
+    if (typeof venue.owner === 'object' && venue.owner._id) {
+        // If owner is populated object, get the _id
+        venueOwnerId = venue.owner._id.toString();
+    } else {
+        // If owner is just ObjectId
+        venueOwnerId = venue.owner.toString();
+    }
+
+    const userIdString = userId.toString();
+
+    if (venueOwnerId !== userIdString) {
+        throw new AppError('Unauthorized - you can only manage your own venues', 403);
+    }
+
+    const updatedVenue = await venueRepo.update(venueId, { isActive });
+    return updatedVenue;
+};
+
 exports.updateVenueRating = async (venueId, rating, reviewCount) => {
     try {
         const venue = await venueRepo.updateById(venueId, {
