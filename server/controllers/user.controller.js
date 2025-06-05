@@ -94,37 +94,43 @@ exports.deleteUser = async (req, res, next) => {
     }
 };
 
+// Updated favorites methods to use current user ID from token
 exports.getFavorites = async (req, res, next) => {
     try {
-        const favs = await userService.getFavorites(req.params.id);
-        res.status(200).json({
-            data: favs
-        });
-    } catch (err) {
-        next(err);
+        const favorites = await userService.getFavoriteVenues(req.user.id);
+        return successResponse(res, 'Favorite venues retrieved successfully', favorites);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
 exports.addFavorite = async (req, res, next) => {
     try {
-        const user = await userService.addFavorite(req.params.id, req.body.venueId);
-        res.status(200).json({
-            data: user,
-            message: 'Venue added to favorites.'
-        });
-    } catch (err) {
-        next(err);
+        const { venueId } = req.body;
+        const result = await userService.addFavorite(req.user.id, venueId);
+        return successResponse(res, 'Venue added to favorites', result);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
 exports.removeFavorite = async (req, res, next) => {
     try {
-        const user = await userService.removeFavorite(req.params.id, req.params.venueId);
-        res.status(200).json({
-            data: user,
-            message: 'Venue removed from favorites.'
-        });
-    } catch (err) {
-        next(err);
+        const { venueId } = req.params;
+        const result = await userService.removeFavorite(req.user.id, venueId);
+        return successResponse(res, 'Venue removed from favorites', result);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+// Check if venue is in user's favorites
+exports.checkFavorite = async (req, res, next) => {
+    try {
+        const { venueId } = req.params;
+        const isFavorite = await userService.checkFavorite(req.user.id, venueId);
+        return successResponse(res, 'Favorite status checked', { isFavorite });
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };

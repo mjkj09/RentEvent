@@ -1,5 +1,6 @@
 const userRepo = require('../repositories/user.repository');
 const companyRepo = require('../repositories/company.repository');
+const venueService = require('./venue.service');
 const bcrypt = require('bcrypt');
 const User = require('../models/user.model');
 const AppError = require('../utils/AppError');
@@ -33,6 +34,7 @@ exports.deleteUser = async (id) => {
     }
 };
 
+// Updated favorites methods
 exports.getFavorites = (id) =>
     userRepo.getFavorites(id);
 
@@ -50,6 +52,31 @@ exports.removeFavorite = async (id, venueId) => {
     } catch {
         throw new AppError('Unable to remove favorite', 400);
     }
+};
+
+// New method to get favorite venues with full details
+exports.getFavoriteVenues = async (userId) => {
+    const user = await userRepo.findById(userId);
+    if (!user) {
+        throw new AppError('User not found', 404);
+    }
+
+    if (!user.favorites || user.favorites.length === 0) {
+        return [];
+    }
+
+    // Get full venue details for favorites
+    return await venueService.getFavoriteVenues(user.favorites);
+};
+
+// Check if a venue is in user's favorites
+exports.checkFavorite = async (userId, venueId) => {
+    const user = await userRepo.findById(userId);
+    if (!user) {
+        throw new AppError('User not found', 404);
+    }
+
+    return user.favorites && user.favorites.includes(venueId);
 };
 
 // Nowe funkcje dla profilu
