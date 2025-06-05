@@ -8,6 +8,7 @@ import Home from './views/Home';
 import Search from './views/Search';
 import CompanySetup from './views/CompanySetup';
 import CreateListing from './views/CreateListing';
+import VenueDetails from './views/VenueDetails';
 import PageLoader from './components/common/PageLoader';
 import {AuthProvider} from './contexts/AuthProvider';
 import {useAuth} from './hooks/useAuth';
@@ -48,6 +49,11 @@ function App() {
                     <Route path="/create-listing" element={
                         <ProtectedRoute>
                             <CreateListing/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/venue/:id" element={
+                        <ProtectedRoute>
+                            <VenueDetails />
                         </ProtectedRoute>
                     }/>
                     <Route path="/requests" element={

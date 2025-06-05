@@ -11,6 +11,11 @@ const venueApi = {
         return response.data;
     },
 
+    getVenueDetails: async (id) => {
+        const response = await axiosInstance.get(`/venues/${id}/details`);
+        return response.data;
+    },
+
     createVenue: async (venueData) => {
         const response = await axiosInstance.post('/venues', venueData);
         return response.data;
