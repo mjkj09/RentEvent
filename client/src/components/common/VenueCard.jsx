@@ -316,7 +316,7 @@ export default function VenueCard({
                         </Box>
                     ) : (
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <Star sx={{ fontSize: 18, color: 'text.disabled', mr: 0.5 }} />
+                            <Star sx={{ fontSize: 18, color: 'text.secondary', mr: 0.5 }} />
                             <Typography variant="body2" color="text.secondary">
                                 No reviews yet
                             </Typography>
