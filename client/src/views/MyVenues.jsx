@@ -20,8 +20,9 @@ import { useAuth } from '../hooks/useAuth';
 import NavBar from '../components/common/NavBar';
 import Footer from '../components/common/Footer';
 import PageLoader from '../components/common/PageLoader';
-import MyVenueCard from '../components/my-venues/MyVenueCard';
+import VenueCard from '../components/common/VenueCard'; // Using the adaptive VenueCard
 import venueService from '../services/venue.service';
+import { formatVenueForDisplay } from '../utils/searchUtils';
 
 export default function MyVenues() {
     const [venues, setVenues] = useState([]);
@@ -56,9 +57,11 @@ export default function MyVenues() {
             setLoading(true);
             setError(null);
             const venuesData = await venueService.getMyVenues();
-            setVenues(venuesData);
+            // Ensure venuesData is an array
+            setVenues(Array.isArray(venuesData) ? venuesData : []);
         } catch (err) {
             setError(err.message || 'Failed to load venues');
+            setVenues([]); // Set empty array on error
         } finally {
             setLoading(false);
         }
@@ -77,11 +80,43 @@ export default function MyVenues() {
         }
     };
 
+    const handleToggleActive = async (venueId, newActiveStatus) => {
+        try {
+            await venueService.toggleVenueActive(venueId, newActiveStatus);
+            setVenues(prev =>
+                prev.map(venue =>
+                    venue._id === venueId
+                        ? { ...venue, isActive: newActiveStatus }
+                        : venue
+                )
+            );
+            setSuccess(`Venue ${newActiveStatus ? 'activated' : 'deactivated'} successfully!`);
+
+            // Clear success message after 5 seconds
+            setTimeout(() => setSuccess(''), 5000);
+        } catch (err) {
+            setError(err.message || 'Failed to update venue status');
+        }
+    };
+
+    const handleViewVenue = (venueId) => {
+        navigate(`/venue/${venueId}`);
+    };
+
+    const handleEditVenue = (venueId) => {
+        navigate(`/edit-venue/${venueId}`);
+    };
+
     const handleCreateVenue = () => {
         navigate('/create-listing');
     };
 
     const getStats = () => {
+        // Ensure venues is an array before processing
+        if (!Array.isArray(venues) || venues.length === 0) {
+            return { totalVenues: 0, activeVenues: 0, totalReviews: 0, averageRating: 0 };
+        }
+
         const totalVenues = venues.length;
         const activeVenues = venues.filter(v => v.isActive).length;
         const totalReviews = venues.reduce((sum, v) => sum + (v.ratingStats?.totalReviews || 0), 0);
@@ -101,6 +136,8 @@ export default function MyVenues() {
     }
 
     const stats = getStats();
+    // Ensure venues is an array before formatting
+    const formattedVenues = Array.isArray(venues) ? venues.map(formatVenueForDisplay) : [];
 
     return (
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -253,11 +290,16 @@ export default function MyVenues() {
                             </Card>
                         ) : (
                             <Grid container spacing={3}>
-                                {venues.map((venue) => (
+                                {formattedVenues.map((venue) => (
                                     <Grid size={{ xs: 12, sm: 6, md: 4 }} key={venue._id}>
-                                        <MyVenueCard
+                                        <VenueCard
                                             venue={venue}
+                                            variant="my-venues"
+                                            onViewDetails={handleViewVenue}
+                                            onEdit={handleEditVenue}
                                             onDelete={handleDeleteVenue}
+                                            onToggleActive={handleToggleActive}
+                                            isAuthenticated={true}
                                         />
                                     </Grid>
                                 ))}
