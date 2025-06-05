@@ -15,6 +15,38 @@ exports.findByIdWithOwner = (id) =>
         .populate('company', 'name nip')
         .exec();
 
+// New method for getting venues with filters and sorting
+exports.findWithFilters = (filters = {}) => {
+    const query = Venue.find(filters);
+
+    return query
+        .populate('owner', 'name surname phone')
+        .populate('company', 'name')
+        .exec();
+};
+
+// Get venues by category with count
+exports.countByCategory = () =>
+    Venue.aggregate([
+        { $match: { isActive: true } },
+        { $group: { _id: '$category', count: { $sum: 1 } } }
+    ]);
+
+// Get popular venues (by review count)
+exports.findPopular = (limit = 6) =>
+    Venue.find({ isActive: true })
+        .sort({ reviews: -1, rating: -1 })
+        .limit(limit)
+        .populate('owner', 'name surname')
+        .exec();
+
+// Get venues by IDs (for favorites)
+exports.findByIds = (venueIds) =>
+    Venue.find({ _id: { $in: venueIds }, isActive: true })
+        .populate('owner', 'name surname phone')
+        .populate('company', 'name')
+        .exec();
+
 exports.insert = (data) =>
     new Venue(data).save();
 

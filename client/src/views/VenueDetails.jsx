@@ -33,12 +33,14 @@ import VenueReviews from '../components/venue-details/VenueReviews';
 import ContactForm from '../components/venue-details/ContactForm';
 
 // Services
+import { useAuth } from '../hooks/useAuth';
 import venueService from '../services/venue.service';
-import reviewService from '../services/review.service';
+import favoritesService from '../services/favorites.service';
 
 export default function VenueDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
 
     const [venue, setVenue] = useState(null);
     const [venueDetails, setVenueDetails] = useState(null);
@@ -46,12 +48,17 @@ export default function VenueDetails() {
     const [error, setError] = useState(null);
     const [isFavorite, setIsFavorite] = useState(false);
     const [showContactForm, setShowContactForm] = useState(false);
+    const [favoriteLoading, setFavoriteLoading] = useState(false);
 
     useEffect(() => {
         // Auto-scroll to top when component mounts
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (!isAuthenticated) {
+            navigate('/auth');
+            return;
+        }
         loadVenueData();
-    }, [id]);
+    }, [id, isAuthenticated, navigate]);
 
     const loadVenueData = async () => {
         try {
@@ -60,10 +67,19 @@ export default function VenueDetails() {
 
             // Load venue details (this includes reviews and ratingStats)
             const venueResponse = await venueService.getVenueDetails(id);
-            console.log('Venue details response:', venueResponse);
+            setVenueDetails(venueResponse);
+            setVenue(venueResponse);
 
-            setVenueDetails(venueResponse.data);
-            setVenue(venueResponse.data);
+            // Check if venue is in user's favorites
+            if (isAuthenticated) {
+                try {
+                    const favoriteStatus = await favoritesService.checkFavorite(id);
+                    setIsFavorite(Boolean(favoriteStatus));
+                } catch (err) {
+                    console.warn('Failed to check favorite status:', err);
+                    setIsFavorite(false);
+                }
+            }
 
         } catch (err) {
             console.error('Error loading venue data:', err);
@@ -78,9 +94,21 @@ export default function VenueDetails() {
         await loadVenueData();
     };
 
-    const handleToggleFavorite = () => {
-        setIsFavorite(!isFavorite);
-        // TODO: Implement favorite toggle API call
+    const handleToggleFavorite = async () => {
+        if (!isAuthenticated) {
+            navigate('/auth');
+            return;
+        }
+
+        try {
+            setFavoriteLoading(true);
+            const newStatus = await favoritesService.toggleFavorite(id, isFavorite);
+            setIsFavorite(newStatus);
+        } catch (err) {
+            console.error('Failed to toggle favorite:', err);
+        } finally {
+            setFavoriteLoading(false);
+        }
     };
 
     const handleShare = async () => {
@@ -97,7 +125,6 @@ export default function VenueDetails() {
         } else {
             // Fallback to copying URL to clipboard
             navigator.clipboard.writeText(window.location.href);
-            // TODO: Show toast notification
         }
     };
 
@@ -121,6 +148,10 @@ export default function VenueDetails() {
     const handleBack = () => {
         navigate(-1);
     };
+
+    if (!isAuthenticated) {
+        return null; // Will redirect in useEffect
+    }
 
     if (loading) {
         return (
@@ -262,8 +293,17 @@ export default function VenueDetails() {
                                 </Box>
 
                                 <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-                                    <IconButton onClick={handleToggleFavorite} color="primary">
-                                        {isFavorite ? <Favorite /> : <FavoriteBorder />}
+                                    <IconButton
+                                        onClick={handleToggleFavorite}
+                                        color="primary"
+                                        disabled={favoriteLoading}
+                                        sx={{
+                                            '&:disabled': {
+                                                opacity: 0.6
+                                            }
+                                        }}
+                                    >
+                                        {isFavorite ? <Favorite sx={{ color: 'error.main' }} /> : <FavoriteBorder />}
                                     </IconButton>
                                     <IconButton onClick={handleShare} color="primary">
                                         <Share />
@@ -288,10 +328,10 @@ export default function VenueDetails() {
                             venueName={venue.name || 'Venue'}
                         />
 
-                        {/* Venue Information (now includes pricing and owner) */}
+                        {/* Venue Information */}
                         <VenueInfo venue={venue} onContactOwner={handleContactOwner} />
 
-                        {/* Reviews Section - moved to bottom */}
+                        {/* Reviews Section */}
                         <VenueReviews
                             reviews={venueDetails?.reviews || []}
                             rating={venueDetails?.ratingStats?.averageRating || 0}
@@ -301,7 +341,7 @@ export default function VenueDetails() {
                             onReviewSubmitted={handleReviewSubmitted}
                         />
 
-                        {/* Contact Form (conditionally rendered) */}
+                        {/* Contact Form */}
                         {showContactForm && (
                             <Box id="contact-form" sx={{ mt: 6 }}>
                                 <ContactForm
@@ -359,14 +399,18 @@ export default function VenueDetails() {
                 <Fab
                     color="primary"
                     onClick={handleToggleFavorite}
+                    disabled={favoriteLoading}
                     sx={{
                         position: 'fixed',
                         bottom: 100,
                         right: 16,
-                        zIndex: 999
+                        zIndex: 999,
+                        '&:disabled': {
+                            opacity: 0.6
+                        }
                     }}
                 >
-                    {isFavorite ? <Favorite /> : <FavoriteBorder />}
+                    {isFavorite ? <Favorite sx={{ color: 'error.main' }} /> : <FavoriteBorder />}
                 </Fab>
 
                 <Fab

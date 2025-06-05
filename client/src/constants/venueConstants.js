@@ -1,4 +1,4 @@
-export const VENUE_CATEGORIES = [
+export const CATEGORIES = [
     'Wedding & Banquet Halls',
     'Conference & Meeting Rooms',
     'Outdoor & Garden Spaces',
@@ -25,20 +25,39 @@ export const REGIONS = [
     'Warminsko-Mazurskie'
 ];
 
+export const FILTER_REGIONS = [
+    'All Poland',
+    'Malopolska',
+    'Mazowieckie',
+    'Dolnoslaskie',
+    'Pomorskie',
+    'Wielkopolskie',
+    'Slaskie',
+    'Lubelskie',
+    'Podlaskie',
+    'Zachodniopomorskie',
+    'Lubuskie',
+    'Kujawsko-Pomorskie',
+    'Lodzkie',
+    'Swietokrzyskie',
+    'Podkarpackie',
+    'Warminsko-Mazurskie'
+];
+
 export const CREATE_LISTING_STEPS = [
     {
-        id: 'details',
+        id: 0,
         title: 'Venue Details',
         description: 'Basic information about your venue'
     },
     {
-        id: 'pricing',
+        id: 1,
         title: 'Pricing & Capacity',
-        description: 'Set your pricing and capacity details'
+        description: 'Set your pricing and venue capacity'
     },
     {
-        id: 'images',
+        id: 2,
         title: 'Images',
-        description: 'Upload photos of your venue'
+        description: 'Add photos to showcase your venue'
     }
 ];

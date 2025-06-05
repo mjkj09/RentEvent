@@ -18,7 +18,7 @@ import {
     ArrowForward
 } from '@mui/icons-material';
 import FormField from '../common/FormField';
-import { VENUE_CATEGORIES, REGIONS } from '../../constants/venueConstants';
+import { CATEGORIES, REGIONS } from '../../constants/venueConstants';
 
 export default function VenueDetailsStep({ data, onDataChange, onNext }) {
     const [formData, setFormData] = useState({
@@ -121,7 +121,7 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item size={{xs: 12}}>
+                    <Grid size={{xs: 12}}>
                         <FormField
                             label="Venue Name"
                             placeholder="Enter your venue name"
@@ -132,7 +132,7 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                         />
                     </Grid>
 
-                    <Grid item size={{xs: 12, sm: 6}}>
+                    <Grid size={{xs: 12, sm: 6}}>
                         <Typography
                             variant="body2"
                             sx={{ mb: 1, fontWeight: 500, color: 'text.primary' }}
@@ -149,7 +149,7 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                                 <MenuItem value="" disabled>
                                     Select venue category
                                 </MenuItem>
-                                {VENUE_CATEGORIES.map((category) => (
+                                {CATEGORIES.map((category) => (
                                     <MenuItem key={category} value={category}>
                                         {category}
                                     </MenuItem>
@@ -158,7 +158,7 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                         </FormControl>
                     </Grid>
 
-                    <Grid item size={{xs: 12, sm: 6}}>
+                    <Grid size={{xs: 12, sm: 6}}>
                         {/* Empty space for layout balance */}
                     </Grid>
                 </Grid>
@@ -175,7 +175,7 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item size={{xs: 12}}>
+                    <Grid size={{xs: 12}}>
                         <FormField
                             label="Street Address"
                             placeholder="ul. Przykładowa 123"
@@ -186,7 +186,7 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                         />
                     </Grid>
 
-                    <Grid item size={{xs: 12, sm: 6}}>
+                    <Grid size={{xs: 12, sm: 6}}>
                         <FormField
                             label="City"
                             placeholder="Krakow"
@@ -197,7 +197,7 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                         />
                     </Grid>
 
-                    <Grid item size={{xs: 12, sm: 6}}>
+                    <Grid size={{xs: 12, sm: 6}}>
                         <Typography
                             variant="body2"
                             sx={{ mb: 1, fontWeight: 500, color: 'text.primary' }}
@@ -236,7 +236,7 @@ export default function VenueDetailsStep({ data, onDataChange, onNext }) {
                 </Typography>
 
                 <Grid container spacing={3}>
-                    <Grid item size={{xs: 12}}>
+                    <Grid size={{xs: 12}}>
                         <FormField
                             label="Venue Description"
                             placeholder="Describe your venue, its features, amenities, and what makes it special..."

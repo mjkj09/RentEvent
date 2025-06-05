@@ -16,6 +16,18 @@ const venueApi = {
         return response.data;
     },
 
+    getCategoryStats: async () => {
+        const response = await axiosInstance.get('/venues/stats/categories');
+        return response.data;
+    },
+
+    getPopularVenues: async (limit = 6) => {
+        const response = await axiosInstance.get('/venues/popular', {
+            params: { limit }
+        });
+        return response.data;
+    },
+
     getMyVenues: async () => {
         const response = await axiosInstance.get('/venues/my/venues');
         return response.data;
@@ -36,23 +48,16 @@ const venueApi = {
         return response.data;
     },
 
-    uploadImage: async (file) => {
-        // console.log('📁 File to upload:', {
-        //     name: file.name,
-        //     type: file.type,
-        //     size: file.size,
-        //     lastModified: file.lastModified
-        // });
+    toggleVenueActive: async (id, isActive) => {
+        const response = await axiosInstance.patch(`/venues/${id}/toggle-active`, { isActive });
+        return response.data;
+    },
 
+    uploadImage: async (file) => {
         const formData = new FormData();
         formData.append('image', file);
 
-        // for (let pair of formData.entries()) {
-        //     console.log('📋 FormData entry:', pair[0], pair[1]);
-        // }
-
         try {
-            // console.log('🚀 Attempting upload with explicit multipart header...');
             const response = await axiosInstance.post('/venues/upload-image', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -61,11 +66,8 @@ const venueApi = {
                 timeout: 30000
             });
 
-            // console.log('📤 Upload response:', response.data);
             return response.data;
         } catch (error) {
-            // console.error('❌ Upload failed with explicit header, trying without...', error);
-
             try {
                 const response = await axiosInstance.post('/venues/upload-image', formData, {
                     headers: {
@@ -75,10 +77,8 @@ const venueApi = {
                     timeout: 30000
                 });
 
-                // console.log('📤 Upload response (no header):', response.data);
                 return response.data;
             } catch (secondError) {
-                // console.error('❌ Both upload attempts failed:', secondError);
                 throw secondError;
             }
         }

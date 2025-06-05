@@ -8,8 +8,8 @@ import {
 import { SearchOff } from '@mui/icons-material';
 import VenueCard from '../common/VenueCard';
 
-export default function SearchResults({ venues, favorites, onToggleFavorite, onVenueClick }) {
-    if (venues.length === 0) {
+export default function SearchResults({ venues, favorites, onToggleFavorite, onVenueClick, isAuthenticated }) {
+    if (!venues || venues.length === 0) {
         return (
             <Paper
                 elevation={0}
@@ -34,12 +34,13 @@ export default function SearchResults({ venues, favorites, onToggleFavorite, onV
     return (
         <Grid container spacing={3}>
             {venues.map((venue) => (
-                <Grid item size={{ xs: 12, sm: 6, lg: 4 }} key={venue.id}>
+                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={venue._id || venue.id}>
                     <VenueCard
                         venue={venue}
-                        isFavorite={favorites.includes(venue.id)}
-                        onToggleFavorite={() => onToggleFavorite(venue.id)}
-                        onViewDetails={() => onVenueClick(venue.id)}
+                        isFavorite={favorites.includes(venue._id || venue.id)}
+                        onToggleFavorite={() => onToggleFavorite(venue._id || venue.id)}
+                        onViewDetails={() => onVenueClick(venue._id || venue.id)}
+                        isAuthenticated={isAuthenticated}
                     />
                 </Grid>
             ))}

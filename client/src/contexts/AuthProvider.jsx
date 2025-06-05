@@ -10,25 +10,40 @@ export const AuthProvider = ({children}) => {
     useEffect(() => {
         const loadUser = async () => {
             try {
+                setLoading(true);
+                setError(null);
+
                 const userData = await authService.getCurrentUser();
                 setUser(userData);
+                console.log('✅ User loaded successfully:', userData);
+
             } catch (err) {
-                setError(err.message);
+                console.log('ℹ️ No authenticated user found:', err.message);
+                setUser(null);
+                // Don't set error for 401s - just means user isn't logged in
+                if (err.message && !err.message.includes('401')) {
+                    setError(err.message);
+                }
             } finally {
                 setLoading(false);
             }
         };
-        loadUser().catch(err => console.error('Error loading user:', err));
+
+        loadUser();
     }, []);
 
     const register = async (userData) => {
-        setLoading(true);
-        setError(null);
         try {
+            setLoading(true);
+            setError(null);
+
             const result = await authService.register(userData);
             setUser(result.user);
+            console.log('✅ Registration successful:', result.user);
+
             return result;
         } catch (err) {
+            console.error('❌ Registration failed:', err);
             setError(err.message);
             throw err;
         } finally {
@@ -37,13 +52,17 @@ export const AuthProvider = ({children}) => {
     };
 
     const login = async (credentials) => {
-        setLoading(true);
-        setError(null);
         try {
+            setLoading(true);
+            setError(null);
+
             const result = await authService.login(credentials);
             setUser(result.user);
+            console.log('✅ Login successful:', result.user);
+
             return result;
         } catch (err) {
+            console.error('❌ Login failed:', err);
             setError(err.message);
             throw err;
         } finally {
@@ -52,14 +71,19 @@ export const AuthProvider = ({children}) => {
     };
 
     const logout = async () => {
-        setLoading(true);
-        setError(null);
         try {
+            setLoading(true);
+            setError(null);
+
             await authService.logout();
             setUser(null);
+            console.log('✅ Logout successful');
+
         } catch (err) {
+            console.error('❌ Logout failed:', err);
+            // Even if logout fails on server, clear user locally
+            setUser(null);
             setError(err.message);
-            throw err;
         } finally {
             setLoading(false);
         }
@@ -74,7 +98,7 @@ export const AuthProvider = ({children}) => {
                 register,
                 login,
                 logout,
-                setUser, // Dodajemy setUser do context
+                setUser,
                 isAuthenticated: !!user
             }}
         >

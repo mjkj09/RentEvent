@@ -24,6 +24,8 @@ const generateRefreshToken = async (user) => {
         {expiresIn: '30d'}
     );
 
+    await tokenRepo.removeAllUserTokens(user._id);
+
     await tokenRepo.create({
         userId: user._id,
         token: refreshToken
@@ -57,10 +59,10 @@ const validatePassword = (password) => {
         throw new AppError('Password must be at least 8 characters long', 400);
     }
 
-    if (!validator.isStrongPassword(password, { 
-        minLength: 8, 
-        minLowercase: 1, 
-        minUppercase: 1, 
+    if (!validator.isStrongPassword(password, {
+        minLength: 8,
+        minLowercase: 1,
+        minUppercase: 1,
         minNumbers: 1,
         minSymbols: 0
     })) {
@@ -134,9 +136,19 @@ exports.refreshToken = async (refreshToken, res) => {
         throw new AppError('Refresh token is required', 400);
     }
 
-    const tokenDoc = await tokenRepo.findByToken(refreshToken);
-    if (!tokenDoc) {
-        throw new AppError('Invalid refresh token', 401);
+    let tokenDoc;
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        tokenDoc = await tokenRepo.findByToken(refreshToken);
+
+        if (!tokenDoc || tokenDoc.userId.toString() !== decoded.id) {
+            throw new AppError('Invalid refresh token', 401);
+        }
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            throw new AppError('Invalid or expired refresh token', 401);
+        }
+        throw error;
     }
 
     const user = await userRepo.findById(tokenDoc.userId);
@@ -145,10 +157,10 @@ exports.refreshToken = async (refreshToken, res) => {
         throw new AppError('User not found', 401);
     }
 
+    await tokenRepo.remove(refreshToken);
+
     const accessToken = generateAccessToken(user);
     const newRefreshToken = await generateRefreshToken(user);
-
-    await tokenRepo.remove(refreshToken);
 
     setTokenCookies(res, accessToken, newRefreshToken);
 

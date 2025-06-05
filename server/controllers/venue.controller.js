@@ -38,6 +38,27 @@ exports.getVenueDetails = async (req, res, next) => {
     }
 };
 
+// New method for category statistics
+exports.getCategoryStats = async (req, res, next) => {
+    try {
+        const stats = await venueService.getCategoryStats();
+        return successResponse(res, 'Category statistics retrieved successfully', stats);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+// New method for popular venues
+exports.getPopularVenues = async (req, res, next) => {
+    try {
+        const limit = req.query.limit ? parseInt(req.query.limit) : 6;
+        const venues = await venueService.getPopularVenues(limit);
+        return successResponse(res, 'Popular venues retrieved successfully', venues);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
 exports.createVenue = async (req, res, next) => {
     try {
         const ownerId = req.user.id;
@@ -66,6 +87,19 @@ exports.deleteVenue = async (req, res, next) => {
     try {
         await venueService.deleteVenue(req.params.id);
         return successResponse(res, 'Venue deleted successfully');
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+exports.toggleVenueActive = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { isActive } = req.body;
+        const userId = req.user.id;
+
+        const updatedVenue = await venueService.toggleVenueActive(id, userId, isActive);
+        return successResponse(res, `Venue ${isActive ? 'activated' : 'deactivated'} successfully`, updatedVenue);
     } catch (error) {
         return errorResponse(res, error);
     }

@@ -16,6 +16,27 @@ const userApi = {
             data: { password }
         });
         return response.data;
+    },
+
+    // Favorites methods
+    getFavorites: async () => {
+        const response = await axiosInstance.get('/users/favorites');
+        return response.data;
+    },
+
+    addFavorite: async (venueId) => {
+        const response = await axiosInstance.post('/users/favorites', { venueId });
+        return response.data;
+    },
+
+    removeFavorite: async (venueId) => {
+        const response = await axiosInstance.delete(`/users/favorites/${venueId}`);
+        return response.data;
+    },
+
+    checkFavorite: async (venueId) => {
+        const response = await axiosInstance.get(`/users/favorites/${venueId}/check`);
+        return response.data;
     }
 };
 

@@ -56,7 +56,7 @@ const VenueSchema = new mongoose.Schema({
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company',
-        required: false // Optional - for cases where company might not be required
+        required: true
     },
     description: {
         type: String,

@@ -7,6 +7,12 @@ router.get('/profile', verifyToken, ctrl.getUserProfile);
 router.put('/profile', verifyToken, ctrl.updateProfile);
 router.delete('/account', verifyToken, ctrl.deleteAccount);
 
+// Favorites routes - using current user from token
+router.get('/favorites', verifyToken, ctrl.getFavorites);
+router.post('/favorites', verifyToken, ctrl.addFavorite);
+router.delete('/favorites/:venueId', verifyToken, ctrl.removeFavorite);
+router.get('/favorites/:venueId/check', verifyToken, ctrl.checkFavorite);
+
 // Pozostałe route'y
 router.get('/', ctrl.getAllUsers);
 router.post('/', ctrl.createUser);
@@ -15,9 +21,5 @@ router.post('/', ctrl.createUser);
 router.get('/:id', ctrl.getUserById);
 router.put('/:id', ctrl.updateUser);
 router.delete('/:id', ctrl.deleteUser);
-
-router.get('/:id/favorites', verifyToken, ctrl.getFavorites);
-router.post('/:id/favorites', verifyToken, ctrl.addFavorite);
-router.delete('/:id/favorites/:venueId', verifyToken, ctrl.removeFavorite);
 
 module.exports = router;
