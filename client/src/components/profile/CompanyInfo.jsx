@@ -6,16 +6,15 @@ import {
     Typography,
     Button,
     Grid,
-    Chip,
-    Divider
+    Divider,
+    Paper
 } from '@mui/material';
 import {
     Business,
-    Email,
-    Phone,
-    Language,
+    LocationOn,
     Edit,
-    Add
+    Add,
+    AccountBalance
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,7 +22,7 @@ export default function CompanyInfo({ company, userRole }) {
     const navigate = useNavigate();
 
     const handleEditCompany = () => {
-        navigate('/company-setup');
+        navigate('/company-setup', { state: { isEditing: true } });
     };
 
     const handleCreateCompany = () => {
@@ -74,85 +73,71 @@ export default function CompanyInfo({ company, userRole }) {
                     </Button>
                 </Box>
 
+                {/* Company Name */}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 4 }}>
+                    <Business color="primary" sx={{ fontSize: 32 }} />
+                    <Typography variant="h4" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                        {company.name}
+                    </Typography>
+                </Box>
+
                 <Grid container spacing={3}>
+                    {/* Tax Information */}
                     <Grid size={{ xs: 12 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                            <Business color="primary" />
-                            <Box sx={{ flexGrow: 1 }}>
+                        <Paper sx={{ p: 3, backgroundColor: 'grey.50', borderRadius: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                <AccountBalance color="action" fontSize="small" />
                                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                                    {company.name}
+                                    Tax Information
                                 </Typography>
-                                {company.nip && (
-                                    <Typography variant="body2" color="text.secondary">
-                                        NIP: {company.nip}
+                            </Box>
+                            <Grid container spacing={2}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                        NIP (Tax ID)
                                     </Typography>
-                                )}
-                            </Box>
-                            {company.isVerified && (
-                                <Chip
-                                    label="Verified"
-                                    color="success"
-                                    size="small"
-                                />
-                            )}
-                        </Box>
+                                    <Typography variant="body1" sx={{ fontWeight: 500, fontFamily: 'monospace' }}>
+                                        {company.nip}
+                                    </Typography>
+                                </Grid>
+                                <Grid size={{ xs: 12, sm: 6 }}>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                        REGON
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ fontWeight: 500, fontFamily: 'monospace' }}>
+                                        {company.regon}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Paper>
                     </Grid>
 
-                    {company.description && (
-                        <Grid size={{ xs: 12 }}>
-                            <Typography variant="body1" color="text.secondary">
-                                {company.description}
-                            </Typography>
-                        </Grid>
-                    )}
-
+                    {/* Address Information */}
                     <Grid size={{ xs: 12 }}>
-                        <Divider sx={{ my: 1 }} />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, height: '100%' }}>
-                            <Email color="action" fontSize="small" />
-                            <Typography variant="body2">
-                                <strong>Contact Email:</strong> {company.contactEmail}
+                        <Paper sx={{ p: 3, backgroundColor: 'grey.50', borderRadius: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                <LocationOn color="action" fontSize="small" />
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                    Business Address
+                                </Typography>
+                            </Box>
+                            <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                                {company.address?.street}<br />
+                                {company.address?.city}, {company.address?.region}
                             </Typography>
-                        </Box>
+                        </Paper>
                     </Grid>
 
-                    {company.contactPhone && (
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, height: '100%' }}>
-                                <Phone color="action" fontSize="small" />
-                                <Typography variant="body2">
-                                    <strong>Contact Phone:</strong> {company.contactPhone}
-                                </Typography>
-                            </Box>
-                        </Grid>
-                    )}
-
-                    {company.website && (
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, height: '100%' }}>
-                                <Language color="action" fontSize="small" />
-                                <Typography variant="body2">
-                                    <strong>Website:</strong>
-                                    <a
-                                        href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{ marginLeft: 4, color: 'inherit' }}
-                                    >
-                                        {company.website}
-                                    </a>
-                                </Typography>
-                            </Box>
-                        </Grid>
-                    )}
-
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                    {/* Member Since */}
+                    <Grid size={{ xs: 12 }}>
+                        <Divider sx={{ my: 2 }} />
+                        <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="body2" color="text.secondary">
-                                <strong>Member since:</strong> {new Date(company.createdAt).toLocaleDateString()}
+                                <strong>Member since:</strong> {new Date(company.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })}
                             </Typography>
                         </Box>
                     </Grid>

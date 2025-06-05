@@ -40,16 +40,16 @@ const regions = [
     'Warminsko-Mazurskie'
 ];
 
-export default function CompanySetupForm({ onCompanyCreated, onBack }) {
-    const { user, setUser } = useAuth(); // Dodajemy setUser z context
+export default function CompanySetupForm({ onCompanyCreated, onBack, isEditing = false, existingCompany = null }) {
+    const { setUser } = useAuth();
     const [formData, setFormData] = useState({
-        name: '',
-        nip: '',
-        regon: '',
+        name: existingCompany?.name || '',
+        nip: existingCompany?.nip || '',
+        regon: existingCompany?.regon || '',
         address: {
-            street: '',
-            city: '',
-            region: ''
+            street: existingCompany?.address?.street || '',
+            city: existingCompany?.address?.city || '',
+            region: existingCompany?.address?.region || ''
         }
     });
     const [formError, setFormError] = useState('');
@@ -121,16 +121,20 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
         setFormError('');
 
         try {
-            await companyService.createCompany(formData);
+            if (isEditing) {
+                await companyService.updateMyCompany(formData);
+            } else {
+                await companyService.createCompany(formData);
 
-            // Odśwież dane użytkownika z serwera aby mieć zaktualizowaną rolę
-            try {
-                const updatedUser = await authService.getCurrentUser();
-                if (updatedUser && setUser) {
-                    setUser(updatedUser);
+                // Odśwież dane użytkownika tylko przy tworzeniu
+                try {
+                    const updatedUser = await authService.getCurrentUser();
+                    if (updatedUser && setUser) {
+                        setUser(updatedUser);
+                    }
+                } catch (error) {
+                    console.error('Error refreshing user data:', error);
                 }
-            } catch (error) {
-                console.error('Error refreshing user data:', error);
             }
 
             onCompanyCreated();
@@ -285,14 +289,6 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
             {/* Submit Button */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                 <Button
-                    variant="outlined"
-                    onClick={onBack}
-                    disabled={isSubmitting}
-                    sx={{ px: 4 }}
-                >
-                    Back
-                </Button>
-                <Button
                     type="submit"
                     variant="contained"
                     color="primary"
@@ -301,7 +297,10 @@ export default function CompanySetupForm({ onCompanyCreated, onBack }) {
                     startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <Save />}
                     sx={{ px: 4 }}
                 >
-                    {isSubmitting ? 'Creating Company...' : 'Create Company Profile'}
+                    {isSubmitting
+                        ? (isEditing ? 'Updating Company...' : 'Creating Company...')
+                        : (isEditing ? 'Update Company Profile' : 'Create Company Profile')
+                    }
                 </Button>
             </Box>
         </Box>
