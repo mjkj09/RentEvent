@@ -1,6 +1,7 @@
 const venueRepo = require('../repositories/venue.repository');
 const reviewRepository = require('../repositories/review.repository');
 const companyRepository = require('../repositories/company.repository');
+const Venue = require('../models/venue.model');
 const AppError = require('../utils/AppError');
 
 exports.getOwnerVenues = async (ownerId) => {
@@ -34,8 +35,191 @@ exports.getOwnerVenues = async (ownerId) => {
     );
 };
 
-exports.listVenues = (filters) =>
-    venueRepo.findAll(filters);
+// Updated to handle real filtering and searching
+exports.listVenues = async (filters = {}) => {
+    const {
+        search,
+        category,
+        categories,
+        region,
+        minPrice,
+        maxPrice,
+        minCapacity,
+        maxCapacity,
+        minRating,
+        sort,
+        page = 1,
+        limit = 50
+    } = filters;
+
+    // Build MongoDB query
+    let query = { isActive: true };
+
+    // Text search across multiple fields
+    if (search) {
+        query.$or = [
+            { name: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } },
+            { 'location.city': { $regex: search, $options: 'i' } },
+            { 'location.region': { $regex: search, $options: 'i' } }
+        ];
+    }
+
+    // Category filter
+    if (category) {
+        query.category = category;
+    } else if (categories) {
+        const categoryArray = Array.isArray(categories) ? categories : categories.split(',');
+        query.category = { $in: categoryArray };
+    }
+
+    // Region filter
+    if (region && region !== 'All Poland') {
+        query['location.region'] = region;
+    }
+
+    // Price range filter
+    if (minPrice || maxPrice) {
+        query.$and = query.$and || [];
+
+        if (minPrice) {
+            query.$and.push({
+                $or: [
+                    { 'pricing.isPriceHidden': true },
+                    { 'pricing.minPricePerPerson': { $gte: parseFloat(minPrice) } }
+                ]
+            });
+        }
+
+        if (maxPrice) {
+            query.$and.push({
+                $or: [
+                    { 'pricing.isPriceHidden': true },
+                    { 'pricing.maxPricePerPerson': { $lte: parseFloat(maxPrice) } },
+                    {
+                        $and: [
+                            { 'pricing.maxPricePerPerson': null },
+                            { 'pricing.minPricePerPerson': { $lte: parseFloat(maxPrice) } }
+                        ]
+                    }
+                ]
+            });
+        }
+    }
+
+    // Capacity filter
+    if (minCapacity) {
+        query.capacity = { ...query.capacity, $gte: parseInt(minCapacity) };
+    }
+    if (maxCapacity) {
+        query.capacity = { ...query.capacity, $lte: parseInt(maxCapacity) };
+    }
+
+    // Rating filter
+    if (minRating) {
+        query.rating = { $gte: parseFloat(minRating) };
+    }
+
+    // Build sort object
+    let sortObject;
+    switch (sort) {
+        case 'price-low':
+            sortObject = { 'pricing.minPricePerPerson': 1, name: 1 };
+            break;
+        case 'price-high':
+            sortObject = { 'pricing.maxPricePerPerson': -1, 'pricing.minPricePerPerson': -1, name: 1 };
+            break;
+        case 'rating':
+            sortObject = { rating: -1, reviews: -1, name: 1 };
+            break;
+        case 'reviews':
+            sortObject = { reviews: -1, rating: -1, name: 1 };
+            break;
+        default:
+            sortObject = { createdAt: -1, name: 1 };
+    }
+
+    // Execute query with proper Mongoose query builder
+    const venues = await Venue.find(query)
+        .populate('owner', 'name surname phone')
+        .populate('company', 'name')
+        .sort(sortObject)
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit));
+
+    return venues;
+};
+
+// Get category statistics for home page
+exports.getCategoryStats = async () => {
+    const stats = await venueRepo.countByCategory();
+
+    // Convert to object for easier frontend consumption
+    const categoryStats = {};
+    stats.forEach(stat => {
+        categoryStats[stat._id] = stat.count;
+    });
+
+    return categoryStats;
+};
+
+// Get popular venues for home page
+exports.getPopularVenues = async (limit = 6) => {
+    const venues = await venueRepo.findPopular(limit);
+
+    // Add rating stats for each venue
+    return await Promise.all(
+        venues.map(async (venue) => {
+            const reviews = await reviewRepository.findByVenue(venue._id);
+
+            const ratingStats = {
+                averageRating: 0,
+                totalReviews: reviews.length
+            };
+
+            if (reviews.length > 0) {
+                const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+                ratingStats.averageRating = Number((totalRating / reviews.length).toFixed(1));
+            }
+
+            return {
+                ...venue.toObject(),
+                ratingStats
+            };
+        })
+    );
+};
+
+// Get user's favorite venues
+exports.getFavoriteVenues = async (venueIds) => {
+    if (!venueIds || venueIds.length === 0) {
+        return [];
+    }
+
+    const venues = await venueRepo.findByIds(venueIds);
+
+    // Add rating stats for each venue
+    return await Promise.all(
+        venues.map(async (venue) => {
+            const reviews = await reviewRepository.findByVenue(venue._id);
+
+            const ratingStats = {
+                averageRating: 0,
+                totalReviews: reviews.length
+            };
+
+            if (reviews.length > 0) {
+                const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+                ratingStats.averageRating = Number((totalRating / reviews.length).toFixed(1));
+            }
+
+            return {
+                ...venue.toObject(),
+                ratingStats
+            };
+        })
+    );
+};
 
 exports.getVenueById = async (id) => {
     const v = await venueRepo.findById(id);

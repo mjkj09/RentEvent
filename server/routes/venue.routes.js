@@ -3,7 +3,10 @@ const ctrl = require('../controllers/venue.controller');
 const { verifyToken, hasRole } = require('../middleware/auth.middleware');
 const { uploadSingle } = require('../middleware/multer.middleware');
 
+// Public routes
 router.get('/', ctrl.getAllVenues);
+router.get('/stats/categories', ctrl.getCategoryStats);
+router.get('/popular', ctrl.getPopularVenues);
 router.get('/:id', ctrl.getVenueById);
 router.get('/:id/details', ctrl.getVenueDetails);
 

@@ -38,6 +38,27 @@ exports.getVenueDetails = async (req, res, next) => {
     }
 };
 
+// New method for category statistics
+exports.getCategoryStats = async (req, res, next) => {
+    try {
+        const stats = await venueService.getCategoryStats();
+        return successResponse(res, 'Category statistics retrieved successfully', stats);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+// New method for popular venues
+exports.getPopularVenues = async (req, res, next) => {
+    try {
+        const limit = req.query.limit ? parseInt(req.query.limit) : 6;
+        const venues = await venueService.getPopularVenues(limit);
+        return successResponse(res, 'Popular venues retrieved successfully', venues);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
 exports.createVenue = async (req, res, next) => {
     try {
         const ownerId = req.user.id;
