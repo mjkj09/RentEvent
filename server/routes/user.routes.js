@@ -14,4 +14,8 @@ router.get('/:id/favorites', verifyToken, ctrl.getFavorites);
 router.post('/:id/favorites', verifyToken, ctrl.addFavorite);
 router.delete('/:id/favorites/:venueId', verifyToken, ctrl.removeFavorite);
 
+router.get('/profile', verifyToken, ctrl.getUserProfile);
+router.put('/profile', verifyToken, ctrl.updateProfile);
+router.delete('/account', verifyToken, ctrl.deleteAccount);
+
 module.exports = router;

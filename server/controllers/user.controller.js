@@ -1,4 +1,41 @@
 const userService = require('../services/user.service');
+const { successResponse, errorResponse } = require('../utils/response.utils');
+
+exports.getUserProfile = async (req, res, next) => {
+    try {
+        const profile = await userService.getUserProfile(req.user.id);
+        return successResponse(res, 'Profile retrieved successfully', profile);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+exports.updateProfile = async (req, res, next) => {
+    try {
+        const updated = await userService.updateProfile(req.user.id, req.body);
+        return successResponse(res, 'Profile updated successfully', updated);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+exports.deleteAccount = async (req, res, next) => {
+    try {
+        const { password } = req.body;
+        const result = await userService.deleteAccount(req.user.id, password);
+
+        // Clear refresh token cookie
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
+        return successResponse(res, result.message);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
 
 exports.getAllUsers = async (req, res, next) => {
     try {
