@@ -3,13 +3,6 @@ const reviewRepo = require('../repositories/review.repository');
 const venueService = require('./venue.service');
 const AppError = require('../utils/AppError');
 
-exports.listReviews = async (venueId) => {
-    if (venueId) {
-        return await reviewRepo.findByVenueWithUser(venueId);
-    }
-    return await reviewRepo.findAll();
-};
-
 exports.getReviewById = async (id) => {
     const review = await reviewRepo.findById(id);
     if (!review) {

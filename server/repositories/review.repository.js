@@ -1,5 +1,8 @@
 const Review = require('../models/review.model');
 
+exports.findAll = (venueId) =>
+    Review.find({})
+
 // Find all reviews for a venue with user information
 exports.findByVenueWithUser = (venueId) =>
     Review.find({ venue: venueId })

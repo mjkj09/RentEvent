@@ -5,7 +5,6 @@ const { verifyToken } = require('../middleware/auth.middleware');
 const { validateReview } = require('../middleware/validation.middleware');
 
 // Public routes
-router.get('/', reviewController.getAllReviews);
 router.get('/:id', reviewController.getReviewById);
 router.get('/venue/:venueId', reviewController.getVenueReviews);
 
