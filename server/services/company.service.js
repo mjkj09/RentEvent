@@ -99,15 +99,6 @@ exports.getAllCompanies = async (page = 1, limit = 10) => {
     return await companyRepository.getAllCompanies(page, limit);
 };
 
-exports.verifyCompany = async (companyId) => {
-    const company = await companyRepository.findById(companyId);
-    if (!company) {
-        throw new AppError('Company not found', 404);
-    }
-
-    return await companyRepository.verifyCompany(companyId);
-};
-
 exports.checkCompanyExists = async (ownerId) => {
     const company = await companyRepository.findByOwnerId(ownerId);
     return !!company;

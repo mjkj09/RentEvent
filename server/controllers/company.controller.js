@@ -84,17 +84,6 @@ exports.getAllCompanies = async (req, res, next) => {
     }
 };
 
-exports.verifyCompany = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const company = await companyService.verifyCompany(id);
-
-        return successResponse(res, 'Company verified successfully', company);
-    } catch (error) {
-        return errorResponse(res, error);
-    }
-};
-
 exports.checkCompanyExists = async (req, res, next) => {
     try {
         const ownerId = req.user.id;
