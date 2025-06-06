@@ -42,10 +42,3 @@ exports.getAllCompanies = async (page = 1, limit = 10) => {
         totalPages: Math.ceil(total / limit)
     };
 };
-
-exports.verifyCompany = (companyId) =>
-    Company.findByIdAndUpdate(
-        companyId,
-        { isVerified: true, updatedAt: Date.now() },
-        { new: true }
-    ).populate('owner', 'name surname email role').exec();

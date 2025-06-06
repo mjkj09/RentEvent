@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const companyController = require('../controllers/company.controller');
-const { verifyToken } = require('../middleware/auth.middleware');
+const { verifyToken, hasRole } = require('../middleware/auth.middleware');
 const { validateCompany, validateCompanyUpdate } = require('../middleware/validation.middleware');
 
 // All routes require authentication
@@ -16,9 +16,8 @@ router.delete('/my-company', companyController.deleteMyCompany);
 router.post('/switch-to-renter', companyController.switchToRenter);
 router.get('/check-exists', companyController.checkCompanyExists);
 
-// Admin routes (could be protected with additional admin middleware)
-router.get('/all', companyController.getAllCompanies);
-router.get('/:id', companyController.getCompanyById);
-router.patch('/:id/verify', companyController.verifyCompany);
+// Admin routes
+router.get('/all', verifyToken, hasRole(['admin']), companyController.getAllCompanies);
+router.get('/:id', verifyToken, hasRole(['admin']), companyController.getCompanyById);
 
 module.exports = router;

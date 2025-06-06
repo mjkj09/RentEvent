@@ -2,17 +2,6 @@
 const reviewService = require('../services/review.service');
 const { successResponse, errorResponse } = require('../utils/response.utils');
 
-exports.getAllReviews = async (req, res, next) => {
-    try {
-        const { venue } = req.query;
-        const reviews = await reviewService.listReviews(venue);
-
-        return successResponse(res, 'Reviews retrieved successfully', reviews);
-    } catch (error) {
-        return errorResponse(res, error);
-    }
-};
-
 exports.getReviewById = async (req, res, next) => {
     try {
         const review = await reviewService.getReviewById(req.params.id);

@@ -1,3 +1,4 @@
+// server/routes/user.routes.js - POPRAWIONE
 const router = require('express').Router();
 const ctrl = require('../controllers/user.controller');
 const { verifyToken, hasRole } = require('../middleware/auth.middleware');
@@ -13,13 +14,11 @@ router.post('/favorites', verifyToken, ctrl.addFavorite);
 router.delete('/favorites/:venueId', verifyToken, ctrl.removeFavorite);
 router.get('/favorites/:venueId/check', verifyToken, ctrl.checkFavorite);
 
-// Pozostałe route'y
-router.get('/', ctrl.getAllUsers);
-router.post('/', ctrl.createUser);
+router.get('/', verifyToken, hasRole(['admin']), ctrl.getAllUsers);
+router.post('/', verifyToken, hasRole(['admin']), ctrl.createUser);
 
-// Parametryzowane route'y na końcu
-router.get('/:id', ctrl.getUserById);
-router.put('/:id', ctrl.updateUser);
-router.delete('/:id', ctrl.deleteUser);
+router.get('/:id', verifyToken, hasRole(['admin']), ctrl.getUserById);
+router.put('/:id', verifyToken, hasRole(['admin']), ctrl.updateUser);
+router.delete('/:id', verifyToken, hasRole(['admin']), ctrl.deleteUser);
 
 module.exports = router;
