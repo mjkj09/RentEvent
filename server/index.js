@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const path = require('path');
 require('dotenv').config();
+const { swaggerDocs } = require('./config/swagger');
 
 const app = express();
 app.use(cors({
@@ -26,16 +27,18 @@ const reviewRoutes = require('./routes/review.routes');
 const companyRoutes = require('./routes/company.routes');
 const requestRoutes = require('./routes/request.routes');
 
-app.use('/api/requests', requestRoutes);
-app.use('/api/venues', venueRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/company', companyRoutes);
+app.use('/api/v1/requests', requestRoutes);
+app.use('/api/v1/venues', venueRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/reviews', reviewRoutes);
+app.use('/api/v1/company', companyRoutes);
 
 const errorHandler = require('./middleware/error.middleware');
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    swaggerDocs(app);
+});
