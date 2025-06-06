@@ -4,7 +4,7 @@ RentEvent is a comprehensive web platform that connects venue owners with event 
 
 ### Key Features:
 - 🏢 **For Venue Owners**: Create and manage rental listings, handle customer inquiries
-- 🎉 **For Event Organizers**: Search venues, filter by category/location/price, save favorites
+- 🎉 **For Event Organizers**: Search venues, filter by category/location/price, save favourites
 - ❤️ **Favourites System**: Add venues to favourites for later
 - ⭐ **Review System**: Rate and review venues after events
 - 🔐 **Secure Authentication**: JWT with refresh tokens, role-based access control (owner/renter)
