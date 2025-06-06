@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Paper,
@@ -24,9 +24,14 @@ import {
     Close
 } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
+import requestApi from '../../api/request.api';
+import userApi from '../../api/user.api';
 
 export default function ContactForm({ venue, onClose }) {
     const { user } = useAuth();
+    const [userProfile, setUserProfile] = useState(null);
+
+    // Initialize form with user data
     const [formData, setFormData] = useState({
         name: user ? `${user.name} ${user.surname}` : '',
         email: user ? user.email : '',
@@ -36,8 +41,38 @@ export default function ContactForm({ venue, onClose }) {
         guestCount: '',
         message: ''
     });
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
+
+    // Load user profile to get phone number
+    useEffect(() => {
+        const loadUserProfile = async () => {
+            try {
+                const response = await userApi.getUserProfile();
+
+                // Extract the user data from the nested structure
+                const userData = response.data?.user || response.user;
+                setUserProfile(response);
+
+                // Update phone number if available - check both possible structures
+                const phoneNumber = userData?.phone || response.data?.user?.phone || response.user?.phone;
+
+                if (phoneNumber) {
+                    setFormData(prev => ({
+                        ...prev,
+                        phone: phoneNumber
+                    }));
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        };
+
+        if (user) {
+            loadUserProfile();
+        }
+    }, [user]);
 
     const eventTypes = [
         'Wedding',
@@ -65,16 +100,18 @@ export default function ContactForm({ venue, onClose }) {
         setSubmitStatus(null);
 
         try {
-            // TODO: Implement contact form submission API
-            console.log('Submitting contact form:', {
-                venueId: venue._id,
-                venueName: venue.name,
-                ownerEmail: venue.ownerCompany?.contactEmail || venue.owner.email,
-                ...formData
-            });
+            const requestData = {
+                venue: venue._id,
+                senderName: formData.name,
+                senderEmail: formData.email,
+                senderPhone: formData.phone,
+                eventDate: formData.eventDate || null,
+                eventType: formData.eventType,
+                expectedGuestCount: parseInt(formData.guestCount),
+                message: formData.message
+            };
 
-            // Mock API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await requestApi.createRequest(requestData);
 
             setSubmitStatus({
                 type: 'success',
@@ -83,10 +120,11 @@ export default function ContactForm({ venue, onClose }) {
 
             // Reset form after successful submission
             setTimeout(() => {
+                const userData = userProfile?.data?.user || userProfile?.user;
                 setFormData({
                     name: user ? `${user.name} ${user.surname}` : '',
                     email: user ? user.email : '',
-                    phone: '',
+                    phone: userData?.phone || '',
                     eventDate: '',
                     eventType: '',
                     guestCount: '',
@@ -99,14 +137,14 @@ export default function ContactForm({ venue, onClose }) {
             console.error('Error submitting contact form:', error);
             setSubmitStatus({
                 type: 'error',
-                message: 'Failed to send your message. Please try again.'
+                message: error.response?.data?.message || 'Failed to send your message. Please try again.'
             });
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const isFormValid = formData.name && formData.email && formData.message;
+    const isFormValid = formData.name && formData.email && formData.phone && formData.eventType && formData.guestCount && formData.message;
 
     return (
         <Paper elevation={3} sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
@@ -190,6 +228,9 @@ export default function ContactForm({ venue, onClose }) {
                             label="Phone Number"
                             value={formData.phone}
                             onChange={handleChange('phone')}
+                            required
+                            placeholder="Enter your phone number"
+                            helperText={!formData.phone ? "Please enter your phone number" : ""}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -222,7 +263,7 @@ export default function ContactForm({ venue, onClose }) {
 
                     {/* Event Information */}
                     <Grid item size={{ xs: 12, sm: 6 }}>
-                        <FormControl fullWidth>
+                        <FormControl fullWidth required>
                             <InputLabel>Event Type</InputLabel>
                             <Select
                                 value={formData.eventType}
@@ -245,6 +286,7 @@ export default function ContactForm({ venue, onClose }) {
                             type="number"
                             value={formData.guestCount}
                             onChange={handleChange('guestCount')}
+                            required
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">

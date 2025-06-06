@@ -67,7 +67,7 @@ export default function VenueCard({
         return `PLN ${venue.pricing.minPricePerPerson}-${venue.pricing.maxPricePerPerson} / guest`;
     };
 
-    // Get venue rating (with proper decimal formatting)
+    // Get venue rating (with proper decimal formatting - ALWAYS one decimal place)
     const getVenueRating = () => {
         const rating = venue.ratingStats?.averageRating || venue.rating || 0;
         return parseFloat(rating.toFixed(1));
@@ -297,7 +297,7 @@ export default function VenueCard({
                         </Typography>
                     </Box>
 
-                    {/* Rating with proper decimal formatting or "No reviews yet" */}
+                    {/* Rating with ALWAYS one decimal place formatting or "No reviews yet" */}
                     {getReviewCount() > 0 ? (
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                             <Rating
@@ -308,7 +308,7 @@ export default function VenueCard({
                                 sx={{ mr: 1 }}
                             />
                             <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                {getVenueRating()}
+                                {getVenueRating().toFixed(1)}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
                                 ({getReviewCount()} reviews)
@@ -316,7 +316,7 @@ export default function VenueCard({
                         </Box>
                     ) : (
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <Star sx={{ fontSize: 18, color: 'text.disabled', mr: 0.5 }} />
+                            <Star sx={{ fontSize: 18, color: 'text.secondary', mr: 0.5 }} />
                             <Typography variant="body2" color="text.secondary">
                                 No reviews yet
                             </Typography>

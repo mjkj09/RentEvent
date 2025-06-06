@@ -15,7 +15,9 @@ import {
     Divider,
     Avatar,
     useTheme,
-    useMediaQuery
+    useMediaQuery,
+    Badge,
+    Typography
 } from '@mui/material';
 import {
     Menu as MenuIcon,
@@ -29,6 +31,7 @@ import {
 } from '@mui/icons-material';
 import {useNavigate, useLocation} from 'react-router-dom';
 import {useAuth} from '../../hooks/useAuth';
+import {useNotifications} from '../../hooks/useNotifications';
 import logoSvg from '/logo/logo.svg';
 
 export default function NavBar() {
@@ -39,6 +42,7 @@ export default function NavBar() {
     const navigate = useNavigate();
     const location = useLocation();
     const {user, logout} = useAuth();
+    const {unreadCount, markAllAsRead, resetUnreadCount} = useNotifications();
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -61,10 +65,32 @@ export default function NavBar() {
         }
     };
 
+    const handleRequestsClick = async () => {
+        // Mark all as read when user clicks on requests (only for owners)
+        if (user?.role === 'owner' && unreadCount > 0) {
+            try {
+                await markAllAsRead();
+                resetUnreadCount();
+            } catch (error) {
+                console.error('Failed to mark requests as read:', error);
+            }
+        }
+        navigate('/requests');
+    };
+
     const navigationItems = [
         {label: 'Home', path: '/home', icon: <Home/>},
         {label: 'Search', path: '/search', icon: <Search/>},
-        {label: 'Requests', path: '/requests', icon: <Assignment/>},
+        {
+            label: 'Requests',
+            path: '/requests',
+            icon: user?.role === 'owner' && unreadCount > 0 ? (
+                <Badge badgeContent={unreadCount} color="error">
+                    <Assignment/>
+                </Badge>
+            ) : <Assignment/>,
+            onClick: handleRequestsClick
+        },
         {label: 'Favourites', path: '/favourites', icon: <Favorite/>},
         ...(user?.role === 'owner' ? [{label: 'My Venues', path: '/my-venues', icon: <Business/>}] : [])
     ];
@@ -81,7 +107,7 @@ export default function NavBar() {
                 {navigationItems.map((item) => (
                     <ListItem key={item.path} disablePadding>
                         <ListItemButton
-                            onClick={() => navigate(item.path)}
+                            onClick={() => item.onClick ? item.onClick() : navigate(item.path)}
                             selected={isActive(item.path)}
                             sx={{
                                 '&.Mui-selected': {
@@ -136,7 +162,7 @@ export default function NavBar() {
                             <Button
                                 key={item.path}
                                 color="inherit"
-                                onClick={() => navigate(item.path)}
+                                onClick={() => item.onClick ? item.onClick() : navigate(item.path)}
                                 startIcon={item.icon}
                                 sx={{
                                     px: 2,
@@ -198,13 +224,27 @@ export default function NavBar() {
                             }
                         }}
                     >
-                        <MenuItem onClick={() => {
+                        <Box sx={{ px: 2, py: 1 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Signed in as
+                            </Typography>
+                            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                                {user?.name} {user?.surname}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                                {user?.role === 'owner' ? 'Venue Owner' : 'Event Organizer'}
+                            </Typography>
+                        </Box>
+                        <Divider />
+
+                        <MenuItem sx={{mt: 1}} onClick={() => {
                             handleProfileMenuClose();
                             navigate('/profile');
                         }}>
                             <Person sx={{mr: 2}}/>
                             Profile
                         </MenuItem>
+
                         <Divider/>
                         <MenuItem onClick={() => {
                             handleProfileMenuClose();

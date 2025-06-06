@@ -24,7 +24,9 @@ const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const reviewRoutes = require('./routes/review.routes');
 const companyRoutes = require('./routes/company.routes');
+const requestRoutes = require('./routes/request.routes');
 
+app.use('/api/requests', requestRoutes);
 app.use('/api/venues', venueRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

@@ -13,6 +13,7 @@ import MyVenues from './views/MyVenues';
 import Profile from './views/Profile';
 import EditVenue from './views/EditVenue';
 import Favourites from './views/Favourites';
+import Requests from './views/Requests';
 import PageLoader from './components/common/PageLoader';
 import {AuthProvider} from './contexts/AuthProvider';
 import {useAuth} from './hooks/useAuth';
@@ -82,12 +83,7 @@ function App() {
                     }/>
                     <Route path="/requests" element={
                         <ProtectedRoute>
-                            <PageLoader message="Loading requests..." />
-                        </ProtectedRoute>
-                    }/>
-                    <Route path="/favourites" element={
-                        <ProtectedRoute>
-                            <PageLoader message="Loading favourites..." />
+                            <Requests />
                         </ProtectedRoute>
                     }/>
                 </Routes>
