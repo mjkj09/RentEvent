@@ -19,8 +19,12 @@ services:
       - /app/node_modules
     environment:
       - MONGO_URI=mongodb://mongo:27017/rentevent
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - BREVO_SENDER_EMAIL=${BREVO_SENDER_EMAIL}
     depends_on:
       - mongo
+      - rabbitmq
 
   mongo:
     image: mongo:latest
@@ -29,5 +33,23 @@ services:
     volumes:
       - mongo-data:/data/db
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 volumes:
   mongo-data:
+  rabbitmq-data:
