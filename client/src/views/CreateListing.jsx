@@ -135,16 +135,26 @@ export default function CreateListing() {
             };
 
             const result = await venueService.createVenue(submitData);
+            console.log('Create venue result:', result);
+
+            // Get venue ID from result - check different possible structures
+            const venueId = result.venue?._id || result._id || result.data?._id || result.data?.venue?._id;
+
+            if (!venueId) {
+                console.error('No venue ID found in result:', result);
+                throw new Error('Failed to get venue ID from server response');
+            }
 
             // Redirect to venue details page
-            navigate(`/venue/${result.venue._id}`);
+            navigate(`/venue/${venueId}`);
         } catch (error) {
-            // Error handling will be done in the ImagesStep component
+            console.error('Error creating venue:', error);
+            // Re-throw error so ImagesStep can catch it
+            throw error;
         } finally {
             setIsSubmitting(false);
         }
     };
-
     // Add event listener to detect navigation attempts
     useEffect(() => {
         const handleBeforeUnload = (event) => {

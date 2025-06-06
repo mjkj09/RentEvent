@@ -24,7 +24,7 @@ import {
 import venueService from '../../services/venue.service';
 import { useAuth } from '../../hooks/useAuth';
 
-export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSubmitting }) {
+export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSubmitting, isEditing }) {
     const { user, isAuthenticated } = useAuth();
     const [formData, setFormData] = useState({
         images: data.images || [],
@@ -32,6 +32,7 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
     });
     const [error, setError] = useState('');
     const [uploadingImages, setUploadingImages] = useState(false);
+    const [submitError, setSubmitError] = useState(''); // Dodajemy osobny error dla submissiona
 
     const updateFormData = (newData) => {
         setFormData(newData);
@@ -158,15 +159,31 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
 
     const validateForm = () => {
         if (formData.images.length === 0) {
-            setError('Please upload at least one image of your venue');
+            setSubmitError('Please upload at least one image of your venue');
             return false;
         }
         return true;
     };
 
-    const handleSubmit = () => {
-        if (validateForm()) {
-            onSubmit();
+    const handleSubmit = async () => {
+        // Wyczyść poprzednie błędy
+        setSubmitError('');
+        setError('');
+
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+            // Wywołaj onSubmit i poczekaj na rezultat
+            await onSubmit();
+        } catch (error) {
+            console.error('Error during submission:', error);
+            // Ustaw błąd submissiona
+            const errorMessage = error.response?.data?.message ||
+                error.message ||
+                'Failed to create venue listing. Please try again.';
+            setSubmitError(errorMessage);
         }
     };
 
@@ -187,7 +204,7 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
                         variant="outlined"
                         component="label"
                         startIcon={uploadingImages ? <CircularProgress size={16} /> : <CloudUpload />}
-                        disabled={uploadingImages || formData.images.length >= 10}
+                        disabled={uploadingImages || formData.images.length >= 10 || isSubmitting}
                         sx={{
                             borderStyle: 'dashed',
                             borderWidth: 2,
@@ -212,7 +229,7 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
                             multiple
                             accept="image/*"
                             onChange={handleImageUpload}
-                            disabled={uploadingImages}
+                            disabled={uploadingImages || isSubmitting}
                         />
                     </Button>
 
@@ -292,6 +309,7 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
                                         >
                                             <IconButton
                                                 onClick={() => handleSetBanner(image)}
+                                                disabled={isSubmitting}
                                                 sx={{
                                                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                                                     color: formData.bannerImage === image ? 'warning.main' : 'grey.600',
@@ -306,6 +324,7 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
 
                                             <IconButton
                                                 onClick={() => handleImageDelete(index)}
+                                                disabled={isSubmitting}
                                                 sx={{
                                                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                                                     color: 'error.main',
@@ -349,10 +368,16 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
                 )}
             </Paper>
 
-            {/* Error Alert */}
+            {/* Error Alerts */}
             {error && (
                 <Alert severity="error" sx={{ mb: 3 }}>
                     {error}
+                </Alert>
+            )}
+
+            {submitError && (
+                <Alert severity="error" sx={{ mb: 3 }}>
+                    {submitError}
                 </Alert>
             )}
 
@@ -362,7 +387,7 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
                     variant="outlined"
                     onClick={onBack}
                     startIcon={<ArrowBack />}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || uploadingImages}
                     sx={{ px: 4 }}
                 >
                     Back
@@ -375,7 +400,7 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
                     disabled={isSubmitting || uploadingImages}
                     sx={{ px: 4 }}
                 >
-                    {isSubmitting ? 'Creating Venue...' : 'Create Venue Listing'}
+                    {isSubmitting ? (isEditing ? 'Updating Venue...' : 'Creating Venue...') : (isEditing ? 'Update Venue' : 'Create Venue Listing')}
                 </Button>
             </Box>
         </Box>
