@@ -1,20 +1,20 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-    name: { 
-        type: String, 
-        required: true 
+    name: {
+        type: String,
+        required: true
     },
 
-    surname: { 
-        type: String, 
-        required: true 
+    surname: {
+        type: String,
+        required: true
     },
 
-    email: { 
-        type: String, 
-        required: true, 
-        unique: true 
+    email: {
+        type: String,
+        required: true,
+        unique: true
     },
 
     phone: {
@@ -22,20 +22,20 @@ const UserSchema = new mongoose.Schema({
         default: ''
     },
 
-    password: { 
-        type: String, 
-        required: true 
+    password: {
+        type: String,
+        required: true
     },
 
     role: {
         type: String,
-        enum: ['owner', 'renter'],
+        enum: ['admin', 'owner', 'renter'],
         default: 'renter'
     },
 
-    favorites: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Venue' 
+    favorites: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Venue'
     }]
 });
 

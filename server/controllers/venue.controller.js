@@ -1,61 +1,124 @@
-const Venue = require('../models/venue.model');
+const venueService = require('../services/venue.service');
+const { successResponse, errorResponse } = require('../utils/response.utils');
 
-// [GET] /api/venues
-exports.getAllVenues = async (req, res) => {
+exports.getMyVenues = async (req, res, next) => {
     try {
-        const venues = await Venue.find();
-        res.status(200).json(venues);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const venues = await venueService.getOwnerVenues(req.user.id);
+        return successResponse(res, 'Your venues retrieved successfully', venues);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
-// [GET] /api/venues/:id
-exports.getVenueById = async (req, res) => {
+exports.getAllVenues = async (req, res, next) => {
     try {
-        const venue = await Venue.findById(req.params.id)
-            .populate('owner', 'name surname');
-        if (!venue) {
-            return res.status(404).json({ error: 'Venue not found' });
+        const venues = await venueService.listVenues(req.query);
+        return successResponse(res, 'Venues retrieved successfully', venues);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+exports.getVenueById = async (req, res, next) => {
+    try {
+        const venue = await venueService.getVenueById(req.params.id);
+        return successResponse(res, 'Venue retrieved successfully', venue);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+// New method for detailed venue view
+exports.getVenueDetails = async (req, res, next) => {
+    try {
+        const venue = await venueService.getVenueByIdWithDetails(req.params.id);
+        return successResponse(res, 'Venue details retrieved successfully', venue);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+// New method for category statistics
+exports.getCategoryStats = async (req, res, next) => {
+    try {
+        const stats = await venueService.getCategoryStats();
+        return successResponse(res, 'Category statistics retrieved successfully', stats);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+// New method for popular venues
+exports.getPopularVenues = async (req, res, next) => {
+    try {
+        const limit = req.query.limit ? parseInt(req.query.limit) : 6;
+        const venues = await venueService.getPopularVenues(limit);
+        return successResponse(res, 'Popular venues retrieved successfully', venues);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+exports.createVenue = async (req, res, next) => {
+    try {
+        const ownerId = req.user.id;
+        const venueData = {
+            ...req.body,
+            owner: ownerId
+        };
+
+        const venue = await venueService.createVenue(venueData);
+        return successResponse(res, 'Venue created successfully', venue, 201);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+exports.updateVenue = async (req, res, next) => {
+    try {
+        const updated = await venueService.updateVenue(req.params.id, req.body);
+        return successResponse(res, 'Venue updated successfully', updated);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+exports.deleteVenue = async (req, res, next) => {
+    try {
+        await venueService.deleteVenue(req.params.id);
+        return successResponse(res, 'Venue deleted successfully');
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+exports.toggleVenueActive = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { isActive } = req.body;
+        const userId = req.user.id;
+
+        const updatedVenue = await venueService.toggleVenueActive(id, userId, isActive);
+        return successResponse(res, `Venue ${isActive ? 'activated' : 'deactivated'} successfully`, updatedVenue);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+// Image upload handler
+exports.uploadImage = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return errorResponse(res, { message: 'No image file provided', statusCode: 400 });
         }
-        res.status(200).json(venue);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-};
 
-// [POST] /api/venues
-exports.createVenue = async (req, res) => {
-    try {
-        const venue = await Venue.create(req.body);
-        res.status(201).json(venue);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-    }
-};
+        // Return full URL for the uploaded image
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const imagePath = `/uploads/venues/${req.file.filename}`;
+        const fullImageUrl = `${baseUrl}${imagePath}`;
 
-// [PUT] /api/venues/:id
-exports.updateVenue = async (req, res) => {
-    try {
-        const venue = await Venue.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!venue) {
-            return res.status(404).json({ error: 'Venue not found' });
-        }
-        res.status(200).json(venue);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-    }
-};
-
-// [DELETE] /api/venues/:id
-exports.deleteVenue = async (req, res) => {
-    try {
-        const venue = await Venue.findByIdAndDelete(req.params.id);
-        if (!venue) {
-            return res.status(404).json({ error: 'Venue not found' });
-        }
-        res.status(204).send();
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        return successResponse(res, 'Image uploaded successfully', { imageUrl: fullImageUrl });
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };

@@ -1,78 +1,66 @@
-const Review = require('../models/review.model');
+// Updated server/controllers/review.controller.js
+const reviewService = require('../services/review.service');
+const { successResponse, errorResponse } = require('../utils/response.utils');
 
-// [POST] /api/reviews
-exports.createReview = async (req, res) => {
+exports.getReviewById = async (req, res, next) => {
     try {
-        const newReview = await Review.create(req.body);
-        res.status(201).json(newReview);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
+        const review = await reviewService.getReviewById(req.params.id);
+
+        return successResponse(res, 'Review retrieved successfully', review);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
-// [GET] /api/reviews
-exports.getAllReviews = async (req, res) => {
+exports.createReview = async (req, res, next) => {
     try {
-        const { venue } = req.query;
-        let filter = {};
+        const userId = req.user.id;
+        const reviewData = {
+            ...req.body,
+            user: userId
+        };
 
-        if (venue) {
-            filter.venue = venue;
-        }
+        const review = await reviewService.createReview(reviewData);
 
-        const reviews = await Review.find(filter)
-            .populate('user', 'name surname')
-            .populate('venue', 'name');
-
-        res.status(200).json(reviews);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        return successResponse(res, 'Review created successfully', review, 201);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
-// [GET] /api/reviews/:id
-exports.getReviewById = async (req, res) => {
+exports.updateReview = async (req, res, next) => {
     try {
-        const review = await Review.findById(req.params.id)
-            .populate('user', 'name surname')
-            .populate('venue', 'name');
-        if (!review) {
-            return res.status(404).json({ error: 'Review not found' });
-        }
-        res.status(200).json(review);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const userId = req.user.id;
+        const reviewId = req.params.id;
+
+        const review = await reviewService.updateReview(reviewId, req.body, userId);
+
+        return successResponse(res, 'Review updated successfully', review);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
-// [PUT] /api/reviews/:id
-exports.updateReview = async (req, res) => {
+exports.deleteReview = async (req, res, next) => {
     try {
-        const updatedReview = await Review.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        ).populate('user', 'name surname')
-            .populate('venue', 'name');
+        const userId = req.user.id;
+        const reviewId = req.params.id;
 
-        if (!updatedReview) {
-            return res.status(404).json({ error: 'Review not found' });
-        }
-        res.status(200).json(updatedReview);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
+        await reviewService.deleteReview(reviewId, userId);
+
+        return successResponse(res, 'Review deleted successfully');
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
-// [DELETE] /api/reviews/:id
-exports.deleteReview = async (req, res) => {
+exports.getVenueReviews = async (req, res, next) => {
     try {
-        const deletedReview = await Review.findByIdAndDelete(req.params.id);
-        if (!deletedReview) {
-            return res.status(404).json({ error: 'Review not found' });
-        }
-        res.status(204).send();
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const { venueId } = req.params;
+        const reviews = await reviewService.getVenueReviews(venueId);
+
+        return successResponse(res, 'Venue reviews retrieved successfully', reviews);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };

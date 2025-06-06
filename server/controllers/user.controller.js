@@ -1,110 +1,136 @@
-const User = require('../models/user.model');
+const userService = require('../services/user.service');
+const { successResponse, errorResponse } = require('../utils/response.utils');
 
-// [GET] /api/users
-exports.getAllUsers = async (req, res) => {
+exports.getUserProfile = async (req, res, next) => {
     try {
-        const users = await User.find();
-        res.status(200).json(users);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const profile = await userService.getUserProfile(req.user.id);
+        return successResponse(res, 'Profile retrieved successfully', profile);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
-// [GET] /api/users/:id
-exports.getUserById = async (req, res) => {
+exports.updateProfile = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.id).populate('favorites');
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(200).json(user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const updated = await userService.updateProfile(req.user.id, req.body);
+        return successResponse(res, 'Profile updated successfully', updated);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
-// [POST] /api/users
-exports.createUser = async (req, res) => {
+exports.deleteAccount = async (req, res, next) => {
     try {
-        const newUser = await User.create(req.body);
-        res.status(201).json(newUser);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-    }
-};
+        const { password } = req.body;
+        const result = await userService.deleteAccount(req.user.id, password);
 
-// [PUT] /api/users/:id
-exports.updateUser = async (req, res) => {
-    try {
-        const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
+        // Clear refresh token cookie
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
         });
-        if (!updatedUser) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(200).json(updatedUser);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
+
+        return successResponse(res, result.message);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
-// [DELETE] /api/users/:id
-exports.deleteUser = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
     try {
-        const deletedUser = await User.findByIdAndDelete(req.params.id);
-        if (!deletedUser) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(204).send();
+        const users = await userService.listUsers();
+        res.status(200).json({
+            data: users
+        });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-// [GET] /api/users/:id/favorites
-exports.getFavorites = async (req, res) => {
+exports.getUserById = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.id).populate('favorites');
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(200).json(user.favorites);
+        const user = await userService.getUserById(req.params.id);
+        res.status(200).json({
+            data: user
+        });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-// [POST] /api/users/:id/favorites
-exports.addFavorite = async (req, res) => {
+exports.createUser = async (req, res, next) => {
+    try {
+        const newUser = await userService.createUser(req.body);
+        res.status(201).json({
+            data: newUser,
+            message: 'User created successfully.'
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.updateUser = async (req, res, next) => {
+    try {
+        const updated = await userService.updateUser(req.params.id, req.body);
+        res.status(200).json({
+            data: updated,
+            message: 'User updated successfully.'
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.deleteUser = async (req, res, next) => {
+    try {
+        await userService.deleteUser(req.params.id);
+        res.status(204).send({
+            message: 'User deleted successfully.'
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Updated favorites methods to use current user ID from token
+exports.getFavorites = async (req, res, next) => {
+    try {
+        const favorites = await userService.getFavoriteVenues(req.user.id);
+        return successResponse(res, 'Favorite venues retrieved successfully', favorites);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+exports.addFavorite = async (req, res, next) => {
     try {
         const { venueId } = req.body;
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        if (!user.favorites.includes(venueId)) {
-            user.favorites.push(venueId);
-            await user.save();
-        }
-        res.status(200).json(user);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
+        const result = await userService.addFavorite(req.user.id, venueId);
+        return successResponse(res, 'Venue added to favorites', result);
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };
 
-// [DELETE] /api/users/:id/favorites/:venueId
-exports.removeFavorite = async (req, res) => {
+exports.removeFavorite = async (req, res, next) => {
     try {
-        const { id, venueId } = req.params;
-        const user = await User.findById(id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        user.favorites = user.favorites.filter((fav) => fav.toString() !== venueId);
-        await user.save();
-        res.status(200).json(user);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
+        const { venueId } = req.params;
+        const result = await userService.removeFavorite(req.user.id, venueId);
+        return successResponse(res, 'Venue removed from favorites', result);
+    } catch (error) {
+        return errorResponse(res, error);
+    }
+};
+
+// Check if venue is in user's favorites
+exports.checkFavorite = async (req, res, next) => {
+    try {
+        const { venueId } = req.params;
+        const isFavorite = await userService.checkFavorite(req.user.id, venueId);
+        return successResponse(res, 'Favorite status checked', { isFavorite });
+    } catch (error) {
+        return errorResponse(res, error);
     }
 };

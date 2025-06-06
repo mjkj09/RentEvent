@@ -1,31 +1,95 @@
-import { Routes, Route, useNavigate } from 'react-router-dom'
-import VenuesList from './pages/VenuesList'
-import VenueDetails from './pages/VenueDetails'
-import AddVenue from './pages/AddVenue'
+import React from 'react';
+import {ThemeProvider, CssBaseline} from "@mui/material";
+import {Routes, Route, Navigate} from "react-router-dom";
+import theme from './theme/theme';
+import Landing from './views/Landing';
+import Auth from './views/Auth';
+import Home from './views/Home';
+import Search from './views/Search';
+import CompanySetup from './views/CompanySetup';
+import CreateListing from './views/CreateListing';
+import VenueDetails from './views/VenueDetails';
+import MyVenues from './views/MyVenues';
+import Profile from './views/Profile';
+import EditVenue from './views/EditVenue';
+import Favourites from './views/Favourites';
+import Requests from './views/Requests';
+import PageLoader from './components/common/PageLoader';
+import {AuthProvider} from './contexts/AuthProvider';
+import {useAuth} from './hooks/useAuth';
 
-function App() {
-  const navigate = useNavigate()
+function ProtectedRoute({ children }) {
+    const { isAuthenticated, loading } = useAuth();
 
-  return (
-    <div>
-      <nav>
-        <button onClick={() => navigate('/venues')}>
-          Lista Obiektów
-        </button>
+    if (loading) {
+        return <PageLoader message="Checking authentication..." />;
+    }
 
-        <button onClick={() => navigate('/venues/new')}>
-          Dodaj obiekt
-        </button>
-      </nav>
-
-      <Routes>
-        <Route path="/venues" element={<VenuesList />} />
-        <Route path="/venues/new" element={<AddVenue />} />
-        <Route path="/venues/:id" element={<VenueDetails />} />
-        <Route path="*" element={<p>Strona nie znaleziona.</p>} />
-      </Routes>
-    </div>
-  )
+    return isAuthenticated ? children : <Navigate to="/auth" />;
 }
 
-export default App
+function App() {
+    return (
+        <AuthProvider>
+            <ThemeProvider theme={theme}>
+                <CssBaseline/>
+                <Routes>
+                    <Route path="/" element={<Landing/>}/>
+                    <Route path="/auth" element={<Auth/>}/>
+                    <Route path="/home" element={
+                        <ProtectedRoute>
+                            <Home/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/search" element={
+                        <ProtectedRoute>
+                            <Search/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/company-setup" element={
+                        <ProtectedRoute>
+                            <CompanySetup/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/create-listing" element={
+                        <ProtectedRoute>
+                            <CreateListing/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/edit-venue/:id" element={
+                        <ProtectedRoute>
+                            <EditVenue />
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/profile" element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/my-venues" element={
+                        <ProtectedRoute>
+                            <MyVenues />
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/venue/:id" element={
+                        <ProtectedRoute>
+                            <VenueDetails />
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/favourites" element={
+                        <ProtectedRoute>
+                            <Favourites />
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/requests" element={
+                        <ProtectedRoute>
+                            <Requests />
+                        </ProtectedRoute>
+                    }/>
+                </Routes>
+            </ThemeProvider>
+        </AuthProvider>
+    )
+}
+
+export default App;
