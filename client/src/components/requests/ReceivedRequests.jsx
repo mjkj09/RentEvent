@@ -96,7 +96,7 @@ export default function ReceivedRequests() {
                         : req
                 ));
             } catch (error) {
-                console.error('Failed to mark as read:', error);
+                // Handle error silently
             }
         }
 

@@ -52,7 +52,7 @@ export default function Requests() {
                 await markAllAsRead();
                 resetUnreadCount();
             } catch (error) {
-                console.error('Failed to mark requests as read:', error);
+                // Handle error silently
             }
         }
     };

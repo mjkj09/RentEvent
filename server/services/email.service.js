@@ -140,7 +140,7 @@ exports.sendVenueInquiry = async (requestData) => {
                             <h1>🏛️ New Venue Inquiry</h1>
                             <p style="margin: 10px 0 0 0; opacity: 0.9;">Someone is interested in your venue!</p>
                         </div>
-                        
+
                         <div class="content">
                             <div class="venue-info">
                                 <div class="venue-name">📍 ${venue.name}</div>
@@ -158,12 +158,12 @@ exports.sendVenueInquiry = async (requestData) => {
                                 <div class="info-label">📅 Event Date</div>
                                 <div class="info-value">${eventDateFormatted}</div>
                             </div>
-                            
+
                             <div class="info-item">
                                 <div class="info-label">🎉 Event Type</div>
                                 <div class="info-value">${eventType}</div>
                             </div>
-                            
+
                             <div class="info-item">
                                 <div class="info-label">👥 Expected Guests</div>
                                 <div class="info-value">${expectedGuestCount} people (Max: ${venue.capacity})</div>
@@ -219,10 +219,7 @@ RentEvent Platform
             `
         };
 
-        console.log(`📧 Sending venue inquiry email to ${receiver.email} for venue: ${venue.name}`);
-
         const result = await apiInstance.sendTransacEmail(emailContent);
-        console.log('✅ Email sent successfully:', result.messageId);
 
         return {
             success: true,
@@ -230,7 +227,7 @@ RentEvent Platform
         };
 
     } catch (error) {
-        console.error('❌ Error sending venue inquiry email:', error);
+        // Handle error silently
         throw new Error(`Failed to send email: ${error.message}`);
     }
 };
@@ -269,7 +266,7 @@ exports.sendInquiryConfirmation = async (requestData) => {
                         <div class="header">
                             <h1>✅ Inquiry Sent Successfully</h1>
                         </div>
-                        
+
                         <div class="content">
                             <div class="success-message">
                                 <h3 style="margin-top: 0;">Your venue inquiry has been sent!</h3>
@@ -309,7 +306,6 @@ RentEvent Platform
         };
 
         const result = await apiInstance.sendTransacEmail(emailContent);
-        console.log('✅ Confirmation email sent successfully:', result.messageId);
 
         return {
             success: true,
@@ -317,7 +313,6 @@ RentEvent Platform
         };
 
     } catch (error) {
-        console.error('❌ Error sending confirmation email:', error);
         return {
             success: false,
             error: error.message

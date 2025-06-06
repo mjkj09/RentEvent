@@ -149,7 +149,7 @@ export default function VenueReviews({
                 onReviewSubmitted();
             }
         } catch (error) {
-            console.error('Error deleting review:', error);
+            // Handle error silently
         }
     };
 

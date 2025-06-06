@@ -178,7 +178,6 @@ export default function ImagesStep({ data, onDataChange, onBack, onSubmit, isSub
             // Wywołaj onSubmit i poczekaj na rezultat
             await onSubmit();
         } catch (error) {
-            console.error('Error during submission:', error);
             // Ustaw błąd submissiona
             const errorMessage = error.response?.data?.message ||
                 error.message ||

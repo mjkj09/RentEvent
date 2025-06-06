@@ -33,7 +33,7 @@ export default function PopularVenues() {
             const popularVenues = await venueService.getPopularVenues(6);
             setVenues(popularVenues);
         } catch (err) {
-            console.error('Error loading popular venues:', err);
+            // Handle error silently
         } finally {
             setLoading(false);
         }
@@ -46,7 +46,7 @@ export default function PopularVenues() {
             const userFavorites = await favoritesService.getFavorites();
             setFavorites(userFavorites.map(venue => venue._id));
         } catch (err) {
-            console.error('Error loading user favorites:', err);
+            // Handle error silently
         }
     };
 
@@ -66,7 +66,7 @@ export default function PopularVenues() {
                 setFavorites(prev => prev.filter(id => id !== venueId));
             }
         } catch (err) {
-            console.error('Failed to toggle favorite:', err);
+            // Handle error silently
         }
     };
 

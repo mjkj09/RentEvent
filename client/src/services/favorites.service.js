@@ -33,7 +33,7 @@ const favoritesService = {
             const response = await userApi.checkFavorite(venueId);
             return Boolean(response.data?.isFavorite);
         } catch (error) {
-            console.warn('Failed to check favorite status:', error);
+            // Handle error silently
             return false;
         }
     },

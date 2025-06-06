@@ -65,7 +65,7 @@ export default function ContactForm({ venue, onClose }) {
                     }));
                 }
             } catch (error) {
-                console.error('Error loading user profile:', error);
+                // Handle error silently
             }
         };
 
@@ -134,7 +134,7 @@ export default function ContactForm({ venue, onClose }) {
             }, 3000);
 
         } catch (error) {
-            console.error('Error submitting contact form:', error);
+            // Handle error silently
             setSubmitStatus({
                 type: 'error',
                 message: error.response?.data?.message || 'Failed to send your message. Please try again.'

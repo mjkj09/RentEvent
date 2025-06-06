@@ -3,7 +3,6 @@ import {
     Box,
     Container,
     Typography,
-    Grid,
     Alert,
     Fade,
     Card,
@@ -74,8 +73,7 @@ export default function Favourites() {
                 setVenues(prev => prev.filter(venue => venue._id !== venueId));
             }
         } catch (err) {
-            console.error('Failed to toggle favorite:', err);
-            // Could show a toast notification here
+            // Handle error silently
         }
     };
 

@@ -9,7 +9,6 @@ let isConnected = false;
 const connect = async () => {
     try {
         const rabbitmqUrl = process.env.RABBITMQ_URL || 'amqp://localhost:5672';
-        console.log('🐰 Connecting to RabbitMQ:', rabbitmqUrl);
 
         connection = await amqp.connect(rabbitmqUrl);
         channel = await connection.createChannel();
@@ -23,21 +22,17 @@ const connect = async () => {
         await setupEmailConsumer();
 
         isConnected = true;
-        console.log('✅ Connected to RabbitMQ and email queue is ready');
 
         // Handle connection errors
         connection.on('error', (err) => {
-            console.error('❌ RabbitMQ connection error:', err);
             isConnected = false;
         });
 
         connection.on('close', () => {
-            console.log('🔌 RabbitMQ connection closed');
             isConnected = false;
         });
 
     } catch (error) {
-        console.error('❌ Failed to connect to RabbitMQ:', error);
         isConnected = false;
         throw error;
     }
@@ -49,7 +44,6 @@ const setupEmailConsumer = async () => {
             if (msg) {
                 try {
                     const data = JSON.parse(msg.content.toString());
-                    console.log('📨 Processing email job:', data.type);
 
                     if (data.type === 'venue_inquiry') {
                         await processVenueInquiry(data);
@@ -58,7 +52,6 @@ const setupEmailConsumer = async () => {
                     // Acknowledge message
                     channel.ack(msg);
                 } catch (error) {
-                    console.error('❌ Error processing email job:', error);
                     // Reject message and don't requeue to avoid infinite loops
                     channel.nack(msg, false, false);
                 }
@@ -66,10 +59,7 @@ const setupEmailConsumer = async () => {
         }, {
             noAck: false
         });
-
-        console.log('👂 Email consumer is listening for jobs...');
     } catch (error) {
-        console.error('❌ Failed to set up email consumer:', error);
         throw error;
     }
 };
@@ -91,11 +81,7 @@ const processVenueInquiry = async (data) => {
             mainEmailResult.success ? null : mainEmailResult.error
         );
 
-        console.log('✅ Venue inquiry emails processed successfully');
-
     } catch (error) {
-        console.error('❌ Error processing venue inquiry:', error);
-
         // Update request with error status
         if (data.requestId) {
             try {
@@ -105,7 +91,7 @@ const processVenueInquiry = async (data) => {
                     error.message
                 );
             } catch (updateError) {
-                console.error('❌ Failed to update request email status:', updateError);
+                // Error updating request status
             }
         }
 
@@ -116,7 +102,6 @@ const processVenueInquiry = async (data) => {
 const queueVenueInquiry = async (data) => {
     try {
         if (!isConnected) {
-            console.log('🔄 RabbitMQ not connected, attempting to connect...');
             await connect();
         }
 
@@ -131,22 +116,15 @@ const queueVenueInquiry = async (data) => {
             persistent: true
         });
 
-        if (queued) {
-            console.log('📨 Venue inquiry queued successfully');
-        } else {
+        if (!queued) {
             throw new Error('Failed to queue message');
         }
 
     } catch (error) {
-        console.error('❌ Failed to queue venue inquiry:', error);
-
         // Fallback: try to send email directly if queue fails
-        console.log('🔄 Attempting direct email sending as fallback...');
         try {
             await processVenueInquiry(data);
-            console.log('✅ Direct email sending succeeded');
         } catch (directError) {
-            console.error('❌ Direct email sending also failed:', directError);
             throw directError;
         }
     }
@@ -161,9 +139,8 @@ const disconnect = async () => {
             await connection.close();
         }
         isConnected = false;
-        console.log('🔌 Disconnected from RabbitMQ');
     } catch (error) {
-        console.error('❌ Error disconnecting from RabbitMQ:', error);
+        // Error disconnecting from RabbitMQ
     }
 };
 
@@ -172,7 +149,6 @@ const initializeQueue = async () => {
     try {
         await connect();
     } catch (error) {
-        console.error('❌ Failed to initialize RabbitMQ on startup:', error);
         // Don't throw here, let the app start even if RabbitMQ is not available
     }
 };
@@ -182,13 +158,11 @@ initializeQueue();
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-    console.log('🛑 Received SIGINT, closing RabbitMQ connection...');
     await disconnect();
     process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-    console.log('🛑 Received SIGTERM, closing RabbitMQ connection...');
     await disconnect();
     process.exit(0);
 });

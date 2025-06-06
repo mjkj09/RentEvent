@@ -34,7 +34,7 @@ export default function Auth() {
                             return;
                         }
                     } catch (error) {
-                        console.error('Error checking company status:', error);
+                        // Handle error silently
                     }
                 }
 

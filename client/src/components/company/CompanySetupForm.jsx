@@ -133,7 +133,7 @@ export default function CompanySetupForm({ onCompanyCreated, onBack, isEditing =
                         setUser(updatedUser);
                     }
                 } catch (error) {
-                    console.error('Error refreshing user data:', error);
+                    // Handle error silently
                 }
             }
 

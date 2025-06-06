@@ -79,7 +79,7 @@ const companyService = {
             const response = await companyApi.checkCompanyExists();
             return response.data.exists;
         } catch (error) {
-            console.error('Error checking company existence:', error);
+            // Handle error silently
             return false;
         }
     },

@@ -318,8 +318,6 @@ const swaggerDocs = (app) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);
   });
-
-  console.log('📝 Swagger docs available at /api/v1/docs');
 };
 
 module.exports = { swaggerDocs };

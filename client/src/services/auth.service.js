@@ -73,7 +73,7 @@ const authService = {
       const hasCompany = await companyService.checkCompanyExists();
       return !hasCompany;
     } catch (error) {
-      console.error('Error checking company setup need:', error);
+      // Handle error silently
       return false;
     }
   }

@@ -61,7 +61,7 @@ export default function NavBar() {
             await logout();
             navigate('/auth');
         } catch (error) {
-            console.error('Logout failed:', error);
+            // Handle error silently
         }
     };
 
@@ -72,7 +72,7 @@ export default function NavBar() {
                 await markAllAsRead();
                 resetUnreadCount();
             } catch (error) {
-                console.error('Failed to mark requests as read:', error);
+                // Handle error silently
             }
         }
         navigate('/requests');

@@ -68,7 +68,7 @@ export default function Search() {
             const userFavorites = await favoritesService.getFavorites();
             setFavorites(userFavorites.map(venue => venue._id));
         } catch (err) {
-            console.error('Error loading user favorites:', err);
+            // Handle error silently
         }
     };
 
@@ -151,7 +151,7 @@ export default function Search() {
                 setFavorites(prev => prev.filter(id => id !== venueId));
             }
         } catch (err) {
-            console.error('Failed to toggle favorite:', err);
+            // Handle error silently
         }
     };
 

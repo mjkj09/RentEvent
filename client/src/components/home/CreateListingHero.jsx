@@ -47,7 +47,7 @@ export default function CreateListingHero() {
                 // Owner with a company → go straight to listing creation
                 navigate('/create-listing');
             } catch (error) {
-                console.error('Error checking company status:', error);
+                // Handle error silently
                 navigate('/company-setup', {
                     state: {
                         fromCreateListing: true,

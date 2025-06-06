@@ -16,9 +16,7 @@ app.use(cookieParser());
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('✅ MongoDB connected'))
-    .catch((err) => console.log(err));
+mongoose.connect(process.env.MONGO_URI);
 
 const venueRoutes = require('./routes/venue.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -39,6 +37,5 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
     swaggerDocs(app);
 });

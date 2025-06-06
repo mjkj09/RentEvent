@@ -15,10 +15,8 @@ export const AuthProvider = ({children}) => {
 
                 const userData = await authService.getCurrentUser();
                 setUser(userData);
-                console.log('✅ User loaded successfully:', userData);
 
             } catch (err) {
-                console.log('ℹ️ No authenticated user found:', err.message);
                 setUser(null);
                 // Don't set error for 401s - just means user isn't logged in
                 if (err.message && !err.message.includes('401')) {
@@ -39,11 +37,9 @@ export const AuthProvider = ({children}) => {
 
             const result = await authService.register(userData);
             setUser(result.user);
-            console.log('✅ Registration successful:', result.user);
 
             return result;
         } catch (err) {
-            console.error('❌ Registration failed:', err);
             setError(err.message);
             throw err;
         } finally {
@@ -58,11 +54,9 @@ export const AuthProvider = ({children}) => {
 
             const result = await authService.login(credentials);
             setUser(result.user);
-            console.log('✅ Login successful:', result.user);
 
             return result;
         } catch (err) {
-            console.error('❌ Login failed:', err);
             setError(err.message);
             throw err;
         } finally {
@@ -77,10 +71,8 @@ export const AuthProvider = ({children}) => {
 
             await authService.logout();
             setUser(null);
-            console.log('✅ Logout successful');
 
         } catch (err) {
-            console.error('❌ Logout failed:', err);
             // Even if logout fails on server, clear user locally
             setUser(null);
             setError(err.message);

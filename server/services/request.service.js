@@ -90,10 +90,8 @@ exports.createRequest = async (requestData, senderId) => {
             message: newRequestData.message
         });
 
-        console.log('✅ Email queued for request:', populatedRequest._id);
     } catch (emailError) {
-        console.error('❌ Failed to queue email for request:', populatedRequest._id, emailError);
-        // Don't fail the request creation if email fails
+        // Handle error silently
     }
 
     return populatedRequest;

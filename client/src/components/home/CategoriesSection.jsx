@@ -56,7 +56,7 @@ export default function CategoriesSection() {
             const stats = await venueService.getCategoryStats();
             setCategoryStats(stats);
         } catch (err) {
-            console.error('Error loading category stats:', err);
+            // Handle error silently
         } finally {
             setLoading(false);
         }

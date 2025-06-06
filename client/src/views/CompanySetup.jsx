@@ -43,7 +43,7 @@ export default function CompanySetup() {
                         }
                     }
                 } catch (error) {
-                    console.error('Error checking company status:', error);
+                    // Handle error silently
                 }
             }
             setLoading(false);

@@ -20,7 +20,7 @@ export function useNotifications() {
             const response = await requestApi.getUnreadCount();
             setUnreadCount(response.data?.unreadCount || 0);
         } catch (err) {
-            console.error('Failed to fetch unread count:', err);
+            // Handle error silently
             setError(err.message);
             setUnreadCount(0);
         } finally {
@@ -37,7 +37,7 @@ export function useNotifications() {
             await requestApi.markAllAsRead();
             setUnreadCount(0);
         } catch (err) {
-            console.error('Failed to mark all as read:', err);
+            // Handle error silently
             setError(err.message);
         }
     }, [isAuthenticated, user]);

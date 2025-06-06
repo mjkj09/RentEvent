@@ -76,13 +76,11 @@ export default function VenueDetails() {
                     const favoriteStatus = await favoritesService.checkFavorite(id);
                     setIsFavorite(Boolean(favoriteStatus));
                 } catch (err) {
-                    console.warn('Failed to check favorite status:', err);
                     setIsFavorite(false);
                 }
             }
 
         } catch (err) {
-            console.error('Error loading venue data:', err);
             setError(err.message || 'Failed to load venue details');
         } finally {
             setLoading(false);
@@ -105,7 +103,7 @@ export default function VenueDetails() {
             const newStatus = await favoritesService.toggleFavorite(id, isFavorite);
             setIsFavorite(newStatus);
         } catch (err) {
-            console.error('Failed to toggle favorite:', err);
+            // Handle error silently
         } finally {
             setFavoriteLoading(false);
         }
@@ -120,7 +118,7 @@ export default function VenueDetails() {
                     url: window.location.href,
                 });
             } catch (err) {
-                console.log('Error sharing:', err);
+                // Handle error silently
             }
         } else {
             // Fallback to copying URL to clipboard

@@ -1,8 +1,5 @@
 const AppError = require('./AppError');
 
-/**
- * Standardized success response utility
- */
 const successResponse = (res, message, data = null, statusCode = 200) => {
     const response = {
         success: true,
@@ -16,14 +13,11 @@ const successResponse = (res, message, data = null, statusCode = 200) => {
     return res.status(statusCode).json(response);
 };
 
-/**
- * Standardized error response utility - uses your existing AppError
- */
 const errorResponse = (res, error) => {
     let statusCode = 500;
     let message = 'Internal server error';
 
-    // Handle your existing AppError
+    // Handle AppError
     if (error instanceof AppError || error.statusCode) {
         statusCode = error.statusCode;
         message = error.message;
@@ -44,23 +38,17 @@ const errorResponse = (res, error) => {
         statusCode = 400;
         message = 'Invalid ID format';
     }
-    // Handle standard Error objects
+    // Handle standard errors
     else if (error instanceof Error) {
         message = error.message;
     }
 
-    // Use your existing error response structure
     const response = {
         success: false,
-        error: {
-            message
-        }
+        error: { message }
     };
 
-    // Add stack trace in development
-    if (process.env.NODE_ENV === 'development' && error.stack) {
-        console.error(error.stack);
-    }
+
 
     return res.status(statusCode).json(response);
 };
