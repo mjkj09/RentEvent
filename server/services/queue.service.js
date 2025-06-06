@@ -8,7 +8,7 @@ let isConnected = false;
 
 const connect = async () => {
     try {
-        const rabbitmqUrl = process.env.RABBITMQ_URL || 'amqp://localhost:5672';
+        const rabbitmqUrl = process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672';
 
         connection = await amqp.connect(rabbitmqUrl);
         channel = await connection.createChannel();

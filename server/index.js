@@ -16,7 +16,7 @@ app.use(cookieParser());
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.MONGO_URI || 'mongodb://mongo:27017/rentevent');
 
 const venueRoutes = require('./routes/venue.routes');
 const authRoutes = require('./routes/auth.routes');
